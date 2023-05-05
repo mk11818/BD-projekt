@@ -52,7 +52,7 @@ export const Register = (props) => {
       return;
     }
     try {
-      const response = await fetch('/register')
+      const response = await fetch('http://localhost:5000/register')
         .then((res) => res.json())
         .then((data) => console.log(data.message));
       setSuccess(true);

@@ -24,6 +24,14 @@ app.use((req, res, next) => {
 
 app.use(loginRoutes);
 
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
+});
+
 app.listen(5000, () => {
   console.log('Server is running on port 5000');
 });
