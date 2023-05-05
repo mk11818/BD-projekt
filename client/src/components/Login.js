@@ -21,7 +21,7 @@ export const Login = (props) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/login')
+      const response = await fetch('http://localhost:5000/login')
         .then((res) => res.json())
         .then((data) => console.log(data.message));
       setSuccess(true);
