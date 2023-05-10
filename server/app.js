@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const loginRoutes = require('./routes/login');
+const sequelize = require('./util/database');
+
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -22,7 +24,7 @@ app.use((req, res, next) => {
 //   res.json({ message: 'Hello from server!' });
 // });
 
-app.use(loginRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -32,6 +34,12 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-app.listen(5000, () => {
-  console.log('Server is running on port 5000');
-});
+sequelize
+  // .sync({ force: true })
+  .sync()
+  .then((result) => {
+    app.listen(5000, () => {
+      console.log('Server is running on port 5000');
+    });
+  })
+  .catch((err) => console.log(err));

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export const Login = (props) => {
+const Login = (props) => {
   const emailRef = useRef();
   const errRef = useRef();
 
@@ -17,13 +17,11 @@ export const Login = (props) => {
     emailRef.current.focus();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const submitHandler = (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/login')
-        .then((res) => res.json())
-        .then((data) => console.log(data.message));
+      props.onLogin(email, pwd);
       setSuccess(true);
       setEmail('');
       setPwd('');
@@ -39,45 +37,46 @@ export const Login = (props) => {
 
   return (
     <>
-      {success ? (
-        <div className="auth-form-container">
+      {success || props.isAuth ? (
+        <div className='auth-form-container'>
           <h1>Pomyślnie zalogowano!</h1>
+          <button onClick={props.onLogout}>Wyloguj</button>
         </div>
       ) : (
-        <div className="auth-form-container">
+        <div className='auth-form-container'>
           <p ref={errRef} className={errMsg ? 'errmsg' : 'offscreen'}>
             {errMsg}
           </p>
           <h2>Logowanie</h2>
-          <form className="login-form" onSubmit={handleSubmit}>
-            <label htmlFor="email">Email</label>
+          <form className='login-form' onSubmit={submitHandler}>
+            <label htmlFor='email'>Email</label>
             <input
               value={email}
               ref={emailRef}
               onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="przyklad@email.com"
+              type='email'
+              placeholder='przyklad@email.com'
               required
               onFocus={() => setEmailFocus(true)}
               onBlur={() => setEmailFocus(false)}
-              id="email"
-              name="email"
+              id='email'
+              name='email'
             />
-            <label htmlFor="password">Hasło</label>
+            <label htmlFor='password'>Hasło</label>
             <input
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
-              type="password"
-              placeholder="********"
+              type='password'
+              placeholder='********'
               onFocus={() => setPwdFocus(true)}
               onBlur={() => setPwdFocus(false)}
-              id="password"
-              name="password"
+              id='password'
+              name='password'
             />
-            <button type="submit">Zaloguj</button>
+            <button type='submit'>Zaloguj</button>
           </form>
           <button
-            className="link-btn"
+            className='link-btn'
             onClick={() => props.onFormSwitch('register')}
           >
             Nie masz konta? Zarejestruj się.
@@ -87,3 +86,5 @@ export const Login = (props) => {
     </>
   );
 };
+
+export default Login;

@@ -3,13 +3,17 @@ import React, { useRef, useState, useEffect } from 'react';
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
-export const Register = (props) => {
+const Register = (props) => {
   const userRef = useRef();
   const errRef = useRef();
 
   const [user, setUser] = useState('');
   const [validName, setValidName] = useState(false);
   const [userFocus, setUserFocus] = useState(false);
+
+  const [email, setEmail] = useState('');
+  const [validEmail, setValidEmail] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
 
   const [pwd, setPwd] = useState('');
   const [validPwd, setValidPwd] = useState(false);
@@ -39,7 +43,7 @@ export const Register = (props) => {
     setErrMsg('');
   }, [user, pwd, matchPwd]);
 
-  const handleSubmit = async (e) => {
+  const submitHandler = (e) => {
     e.preventDefault();
 
     const v1 = USER_REGEX.test(user);
@@ -52,9 +56,7 @@ export const Register = (props) => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:5000/register')
-        .then((res) => res.json())
-        .then((data) => console.log(data.message));
+      props.onRegister(user, email, pwd);
       setSuccess(true);
       setUser('');
       setPwd('');
@@ -84,11 +86,12 @@ export const Register = (props) => {
             {errMsg}
           </p>
           <h2>Rejestracja</h2>
-          <form className='register-form' onSubmit={handleSubmit}>
+          <form className='register-form' onSubmit={submitHandler}>
             <label htmlFor='username'>Nazwa użytkownika</label>
             <input
               type='text'
               id='username'
+              name='username'
               ref={userRef}
               autoComplete='off'
               onChange={(e) => setUser(e.target.value)}
@@ -114,18 +117,21 @@ export const Register = (props) => {
             </p>
             <label htmlFor='email'>Email</label>
             <input
-              // value={email}
-              // onChange={(e) => setEmail(e.target.value)}
               type='email'
-              required
-              placeholder='przyklad@email.com'
               id='email'
               name='email'
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              required
+              onFocus={() => setEmailFocus(true)}
+              onBlur={() => setEmailFocus(false)}
+              placeholder='przyklad@email.com'
             />
             <label htmlFor='password'>Hasło</label>
             <input
               type='password'
               id='password'
+              name='password'
               onChange={(e) => setPwd(e.target.value)}
               value={pwd}
               required
@@ -150,10 +156,11 @@ export const Register = (props) => {
               <span aria-label='dollar sign'>$</span>{' '}
               <span aria-label='percent'>%</span>
             </p>
-            <label htmlFor='confirm_pwd'>Powtórz hasło</label>
+            <label htmlFor='matchPwd'>Powtórz hasło</label>
             <input
               type='password'
-              id='confirm_pwd'
+              id='matchPwd'
+              name='matchPwd'
               onChange={(e) => setMatchPwd(e.target.value)}
               value={matchPwd}
               required
@@ -184,3 +191,5 @@ export const Register = (props) => {
     </>
   );
 };
+
+export default Register;
