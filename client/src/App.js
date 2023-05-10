@@ -4,6 +4,8 @@ import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
 import Home from './components/Home/Home';
+import Backdrop from './components/Backdrop/Backdrop';
+import ErrorHandler from './components/ErrorHandler/ErrorHandler';
 
 function App() {
   // const [backendData, setBackendData] = useState({});
@@ -15,9 +17,12 @@ function App() {
   // }, []);
 
   const [currentForm, setCurrentForm] = useState('login');
+  const [showBackdrop, setShowBackdrop] = useState(false);
+
   const [isAuth, setIsAuth] = useState(false);
   const [token, setToken] = useState('');
   const [userId, setUserId] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,11 +43,17 @@ function App() {
     setAutoLogout(remainingMilliseconds);
   }, []);
 
+  const backdropClickHandler = () => {
+    setShowBackdrop(false);
+    setError('');
+  };
+
   const logoutHandler = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('expiryDate');
     localStorage.removeItem('userId');
     setIsAuth(false);
+    setToken('');
   };
 
   const loginHandler = (email, pwd) => {
@@ -83,6 +94,7 @@ function App() {
       .catch((err) => {
         console.log(err);
         setIsAuth(false);
+        setError(err);
       });
   };
 
@@ -117,6 +129,7 @@ function App() {
       .catch((err) => {
         console.log(err);
         setIsAuth(false);
+        setError(err);
       });
   };
 
@@ -126,6 +139,10 @@ function App() {
     }, milliseconds);
   };
 
+  const errorHandler = () => {
+    setError('');
+  };
+
   const toggleForm = (formName) => {
     setCurrentForm(formName);
   };
@@ -133,6 +150,9 @@ function App() {
   return (
     <div className='App'>
       {/* <h1>{!backendData.message ? 'Loading...' : backendData.message}</h1> */}
+
+      {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
+      <ErrorHandler error={error} onHandle={errorHandler} />
 
       {!isAuth && currentForm === 'login' ? (
         <Login onLogin={loginHandler} onFormSwitch={toggleForm} />
