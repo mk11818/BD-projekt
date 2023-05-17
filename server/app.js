@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const sequelize = require('./util/database');
 
 const authRoutes = require('./routes/auth');
+const marketRoutes = require('./routes/market');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 // });
 
 app.use('/auth', authRoutes);
+app.use(marketRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);

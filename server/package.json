@@ -15,6 +15,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
+    "finnhub": "^1.2.17",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.3.0",
     "sequelize": "^6.31.1"
