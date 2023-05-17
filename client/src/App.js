@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-import './App.css';
-import Login from './components/Login';
-import Register from './components/Register';
-import Home from './components/Home/Home';
+import RootLayout from './pages/Root';
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
+import Home from './pages/Home/Home';
 import Backdrop from './components/Backdrop/Backdrop';
 import ErrorHandler from './components/ErrorHandler/ErrorHandler';
+import PrivateRoutes from './util/PrivateRoutes';
+import PublicRoutes from './util/PublicRoutes';
 
 function App() {
   // const [backendData, setBackendData] = useState({});
@@ -16,7 +19,7 @@ function App() {
   //     .then((data) => setBackendData(data));
   // }, []);
 
-  const [currentForm, setCurrentForm] = useState('login');
+  //const [currentForm, setCurrentForm] = useState('login');
   const [showBackdrop, setShowBackdrop] = useState(false);
 
   const [isAuth, setIsAuth] = useState(false);
@@ -143,18 +146,54 @@ function App() {
     setError('');
   };
 
-  const toggleForm = (formName) => {
-    setCurrentForm(formName);
-  };
+  // const toggleForm = (formName) => {
+  //   setCurrentForm(formName);
+  // };
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <RootLayout />,
+      children: [
+        {
+          element: <PublicRoutes isAuth={isAuth} />,
+          children: [
+            {
+              path: '/',
+              element: <LoginPage onLogin={loginHandler} />,
+            },
+            {
+              path: '/register',
+              element: <RegisterPage onRegister={registerHandler} />,
+            },
+          ],
+        },
+
+        {
+          path: '/dashboard',
+          element: <PrivateRoutes isAuth={isAuth} />,
+          children: [
+            {
+              path: '',
+              element: (
+                <Home isAuthenticated={isAuth} onLogout={logoutHandler} />
+              ),
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  console.log('app ->', isAuth);
 
   return (
-    <div className='App'>
-      {/* <h1>{!backendData.message ? 'Loading...' : backendData.message}</h1> */}
-
+    <>
       {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
       <ErrorHandler error={error} onHandle={errorHandler} />
-
-      {!isAuth && currentForm === 'login' ? (
+      <RouterProvider router={router} />;
+      {/* <h1>{!backendData.message ? 'Loading...' : backendData.message}</h1> */}
+      {/*{!isAuth && currentForm === 'login' ? (
         <Login onLogin={loginHandler} onFormSwitch={toggleForm} />
       ) : (
         ''
@@ -164,13 +203,13 @@ function App() {
       ) : (
         ''
       )}
-      {isAuth && <Home isAuthenticated={isAuth} onLogout={logoutHandler} />}
+      {isAuth && <Home isAuthenticated={isAuth} onLogout={logoutHandler} />} */}
       {/* {currentForm === 'login' ? (
         <Login onFormSwitch={toggleForm} onLogin={loginHandler} />
       ) : (
         <Register onFormSwitch={toggleForm} onRegister={registerHandler} />
       )} */}
-    </div>
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import MainHeader from '../MainHeader/MainHeader';
-import Card from '../UI/Card/Card';
+import MainHeader from '../../components/MainHeader/MainHeader';
+import Card from '../../components/UI/Card/Card';
 import classes from './Home.module.css';
 
 const Home = (props) => {
@@ -31,7 +31,9 @@ const Home = (props) => {
       />
       <Card className={classes.home}>
         <h1>Welcome back!</h1>
-        Apple <br/> <br/> Obecna cena: {data.c} <br/> Zmiana: {data.d} ({data.dp}%) <br/> Cena otwarcia: {data.o} <br/> Cena zamknięcia: {data.pc}
+        Apple <br /> <br /> Obecna cena: {data.c} <br /> Zmiana: {data.d} (
+        {data.dp}%) <br /> Cena otwarcia: {data.o} <br /> Cena zamknięcia:{' '}
+        {data.pc}
       </Card>
     </React.Fragment>
   );

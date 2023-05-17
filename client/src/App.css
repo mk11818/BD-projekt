@@ -52,8 +52,14 @@ button {
 }
 
 .link-btn {
+    border: none;
     background: none;
+    padding: 20px;
+    border-radius: 10px;
+    cursor: pointer;
     color: #363636;
+    font-size: 14px;
+    font-weight: bold;
     text-decoration: underline;
 }
 

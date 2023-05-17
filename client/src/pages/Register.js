@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
-const Register = (props) => {
+const RegisterPage = (props) => {
   const userRef = useRef();
   const errRef = useRef();
 
@@ -25,6 +26,8 @@ const Register = (props) => {
 
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     userRef.current.focus();
@@ -62,6 +65,7 @@ const Register = (props) => {
       setEmail('');
       setPwd('');
       setMatchPwd('');
+      navigate('/');
     } catch (err) {
       if (!err.response) {
         setErrMsg('Brak odpowiedzi od serwera');
@@ -179,16 +183,17 @@ const Register = (props) => {
           </p>
           <button type='submit'>Zarejestruj się</button>
         </form>
-        <button
+        <Link
+          to='/'
           className='link-btn'
-          onClick={() => props.onFormSwitch('login')}
+          // onClick={() => props.onFormSwitch('login')}
         >
           Masz już konto? Zaloguj się.
-        </button>
+        </Link>
       </div>
       {/* )} */}
     </>
   );
 };
 
-export default Register;
+export default RegisterPage;

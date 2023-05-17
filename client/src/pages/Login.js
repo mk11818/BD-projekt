@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Login = (props) => {
+const LoginPage = (props) => {
   const emailRef = useRef();
   const errRef = useRef();
 
@@ -12,6 +13,8 @@ const Login = (props) => {
 
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     emailRef.current.focus();
@@ -25,6 +28,7 @@ const Login = (props) => {
       setSuccess(true);
       setEmail('');
       setPwd('');
+      navigate('/dashboard');
     } catch (err) {
       if (!err.response) {
         setErrMsg('Brak odpowiedzi od serwera');
@@ -75,16 +79,17 @@ const Login = (props) => {
           />
           <button type='submit'>Zaloguj</button>
         </form>
-        <button
+        <Link
+          to='/register'
           className='link-btn'
-          onClick={() => props.onFormSwitch('register')}
+          // onClick={() => props.onFormSwitch('register')}
         >
           Nie masz konta? Zarejestruj się.
-        </button>
+        </Link>
       </div>
       {/* )} */}
     </>
   );
 };
 
-export default Login;
+export default LoginPage;
