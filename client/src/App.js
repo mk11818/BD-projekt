@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import RootLayout from './pages/Root';
-import LoginPage from './pages/Login';
-import RegisterPage from './pages/Register';
-import Home from './pages/Home/Home';
+import LoginPage from './pages/Auth/Login';
+import RegisterPage from './pages/Auth/Register';
+import MainHeader from './components/MainHeader/MainHeader';
+import Dashboard from './pages/Home/Dashboard';
+import Wallet from './pages/Home/Wallet';
 import Backdrop from './components/Backdrop/Backdrop';
 import ErrorHandler from './components/ErrorHandler/ErrorHandler';
 import PrivateRoutes from './util/PrivateRoutes';
 import PublicRoutes from './util/PublicRoutes';
+import ErrorPage from './pages/Error';
 
 function App() {
   // const [backendData, setBackendData] = useState({});
@@ -154,6 +157,7 @@ function App() {
     {
       path: '/',
       element: <RootLayout />,
+      errorElement: <ErrorPage />,
       children: [
         {
           element: <PublicRoutes isAuth={isAuth} />,
@@ -170,14 +174,23 @@ function App() {
         },
 
         {
-          path: '/dashboard',
           element: <PrivateRoutes isAuth={isAuth} />,
           children: [
             {
-              path: '',
+              path: '/dashboard',
               element: (
-                <Home isAuthenticated={isAuth} onLogout={logoutHandler} />
+                <MainHeader isAuthenticated={isAuth} onLogout={loginHandler} />
               ),
+              children: [
+                {
+                  path: '',
+                  element: <Dashboard />,
+                },
+                {
+                  path: 'wallet',
+                  element: <Wallet />,
+                },
+              ],
             },
           ],
         },

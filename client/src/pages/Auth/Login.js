@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import './Auth.css';
+
 const LoginPage = (props) => {
   const emailRef = useRef();
   const errRef = useRef();
