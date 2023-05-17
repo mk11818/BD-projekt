@@ -179,7 +179,7 @@ function App() {
             {
               path: '/dashboard',
               element: (
-                <MainHeader isAuthenticated={isAuth} onLogout={loginHandler} />
+                <MainHeader isAuthenticated={isAuth} onLogout={logoutHandler} />
               ),
               children: [
                 {
