@@ -1,16 +1,37 @@
 const paypal = require('@paypal/checkout-server-sdk');
 
+const User = require('../models/user');
+
 const Environment = paypal.core.SandboxEnvironment;
 const paypalClient = new paypal.core.PayPalHttpClient(
   new Environment(
     'ATqd7kD-q7fFziV37-qm_dz47xKs1n4uO7rwog55b4jziuCKTsbg5gtpUxvXYBXxG-ri2U5dCyNrPjRD',
-    'EAeU8kRcQK1E7arwg6d_xvhVBeAampQjz6sg8xNbO3sICtOOcUySGvwF92nN6LIpq7sEJh-9EPF5x_mW'
+    'EM8-5eXIlm0IYT2efh6jGEn4UCSloaTpkyczsTeQ1kvNf8bz32k8pZjNi1rL_5wpsDNW8lHi5duVDvXl'
   )
 );
 
 const storeItems = new Map([[1, { name: 'eMakler - wpłata środków' }]]);
 
-exports.fillWallet = async (req, res) => {
+exports.getWallet = (req, res, next) => {
+  User.findByPk(req.userId)
+    .then((user) => {
+      return user.getWallet();
+    })
+    .then((wallet) => {
+      res.status(200).json({
+        message: 'Fetched wallet successfully.',
+        value: wallet.value,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.depositFunds = async (req, res, next) => {
   const request = new paypal.orders.OrdersCreateRequest();
   const total = req.body.items.reduce((sum, item) => {
     return sum + item.price;
@@ -45,10 +66,60 @@ exports.fillWallet = async (req, res) => {
     ],
   });
 
+  let order;
   try {
-    const order = await paypalClient.execute(request);
-    res.json({ id: order.result.id });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    order = await paypalClient.execute(request);
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
   }
+
+  let user;
+  try {
+    user = await User.findByPk(req.userId);
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+
+  user
+    .createDeposit_history({
+      payment_no: order.result.id,
+      amount: order.result.purchase_units[0].amount.value,
+      currency: order.result.purchase_units[0].amount.currency_code,
+      date: order.result.create_time,
+    })
+    .then((result) => {
+      // console.log(result);
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+
+  user
+    .getWallet()
+    .then((wallet) => {
+      wallet.value = wallet.value + +total;
+      return wallet.save();
+    })
+    .then((result) => {
+      res.status(200).json({
+        message: 'Wallet successfully filled.',
+        value: result.value,
+        id: order.result.id,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
 };

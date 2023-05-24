@@ -1,11 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
 
 const sequelize = require('./util/database');
 
 const authRoutes = require('./routes/auth');
 const marketRoutes = require('./routes/market');
 const paymentRoutes = require('./routes/payment');
+
+const User = require('./models/user');
+const Wallet = require('./models/wallet');
+const DepositHistory = require('./models/deposit-history');
 
 const app = express();
 
@@ -38,9 +43,33 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
+User.hasOne(Wallet);
+Wallet.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+User.hasMany(DepositHistory);
+DepositHistory.belongsTo(User);
+
 sequelize
-  // .sync({ force: true })
+  //.sync({ force: true })
   .sync()
+  .then((result) => {
+    return User.findByPk(1);
+    // console.log(result);
+  })
+  .then((user) => {
+    if (!user) {
+      return bcrypt.hash('admin123!@', 12).then((hashedPw) => {
+        return User.create({
+          email: 'admin@admin.pl',
+          password: hashedPw,
+          name: 'admin',
+        }).then((user) => {
+          // console.log(user);
+          return user.createWallet();
+        });
+      });
+    }
+    return user;
+  })
   .then((result) => {
     app.listen(5000, () => {
       console.log('Server is running on port 5000');

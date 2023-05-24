@@ -1,9 +1,12 @@
 const express = require('express');
 
 const paymentController = require('../controllers/payment');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
-router.post('/fill-wallet', paymentController.fillWallet);
+router.get('/wallet', isAuth, paymentController.getWallet);
+
+router.post('/fill-wallet', isAuth, paymentController.depositFunds);
 
 module.exports = router;

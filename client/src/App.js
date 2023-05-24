@@ -30,6 +30,12 @@ function App() {
   const [userId, setUserId] = useState('');
   const [error, setError] = useState('');
 
+  const setAutoLogout = (milliseconds) => {
+    setTimeout(() => {
+      logoutHandler();
+    }, milliseconds);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const expiryDate = localStorage.getItem('expiryDate');
@@ -86,8 +92,8 @@ function App() {
       .then((resData) => {
         console.log(resData);
         setIsAuth(true);
-        setToken(token);
-        setUserId(userId);
+        setToken(resData.token);
+        setUserId(resData.userId);
         localStorage.setItem('token', resData.token);
         localStorage.setItem('userId', resData.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
@@ -139,12 +145,6 @@ function App() {
       });
   };
 
-  const setAutoLogout = (milliseconds) => {
-    setTimeout(() => {
-      logoutHandler();
-    }, milliseconds);
-  };
-
   const errorHandler = () => {
     setError('');
   };
@@ -184,11 +184,11 @@ function App() {
               children: [
                 {
                   path: '',
-                  element: <Dashboard />,
+                  element: <Dashboard token={token} />,
                 },
                 {
                   path: 'wallet',
-                  element: <Wallet />,
+                  element: <Wallet token={token} />,
                 },
               ],
             },

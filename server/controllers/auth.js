@@ -17,6 +17,7 @@ exports.register = (req, res, next) => {
       });
     })
     .then((result) => {
+      result.createWallet();
       res
         .status(201)
         .json({ message: 'Pomyślna rejestracja!', userId: result.id });
@@ -57,13 +58,11 @@ exports.login = (req, res, next) => {
         'test',
         { expiresIn: '1h' }
       );
-      res
-        .status(200)
-        .json({
-          message: 'Pomyślne logowanie!',
-          token: token,
-          userId: loadedUser.id.toString(),
-        });
+      res.status(200).json({
+        message: 'Pomyślne logowanie!',
+        token: token,
+        userId: loadedUser.id.toString(),
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {

@@ -1,20 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { FaArrowUp } from 'react-icons/fa';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
 
-const Wallet = () => {
+const Wallet = (props) => {
   const [isPayment, setIsPayment] = useState(false);
   const [amount, setAmount] = useState('');
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/wallet', {
+      headers: {
+        Authorization: 'Bearer ' + props.token,
+      },
+    })
+      .then((res) => {
+        if (res.status !== 200) {
+          throw new Error('Failed to fetch wallet');
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        setValue(resData.value);
+        console.log(resData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [props.token, isPayment]);
 
   const createOrder = function () {
     return fetch('http://localhost:5000/fill-wallet', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + props.token,
       },
       body: JSON.stringify({
         items: [
@@ -50,12 +73,16 @@ const Wallet = () => {
     if (amount > 0) {
       setIsPayment(true);
     }
+
+    // setPrice((...prevPrice) => {
+    //   return parseInt(prevPrice) + parseInt(amount);
+    // });
   };
 
   return (
     <Card className={classes.home}>
       <h1>Portfel</h1>
-      <h4>0.00 PLN</h4>
+      <h4>{value} PLN</h4>
 
       <form onSubmit={submitHandler}>
         <div className={classes[`form-label`]}>
