@@ -1,13 +1,38 @@
-const finnhub = require('finnhub');
-
-const api_key = finnhub.ApiClient.instance.authentications['api_key'];
-api_key.apiKey = 'chdimu1r01qk9rb2k220chdimu1r01qk9rb2k22g'; // Replace this
-const finnhubClient = new finnhub.DefaultApi();
+const Company = require('../models/company');
+const Quote = require('../models/quote');
 
 exports.getQuotes = (req, res, next) => {
-  // Quotes
-  finnhubClient.quote('AAPL', (error, data, response) => {
-    res.status(200).json(data);
-    console.log(data);
-  });
+  Quote.findAll({ include: Company })
+    .then((quotes) => {
+      if (!quotes) {
+        const error = new Error('Quotes could not be found.');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({ message: 'Quotes fetched.', quotes: quotes });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.getQuote = (req, res, next) => {
+  Quote.findByPk(req.params.id, { include: Company })
+    .then((quote) => {
+      if (!quote) {
+        const error = new Error('Quote could not be found.');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({ message: 'Quote fetched.', quote: quote });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
 };

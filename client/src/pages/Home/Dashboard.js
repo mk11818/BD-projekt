@@ -1,10 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { MantineReactTable } from 'mantine-react-table';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Dashboard.module.css';
 
 const Dashboard = (props) => {
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: 'company.symbol',
+        header: 'Instrument',
+      },
+      {
+        accessorKey: 'change',
+        header: 'Zmiana',
+      },
+      {
+        accessorKey: 'current',
+        header: 'Kup',
+      },
+      {
+        accessorKey: 'high',
+        header: 'Wysoki',
+      },
+      {
+        accessorKey: 'low',
+        header: 'Niski',
+      },
+      {
+        accessorKey: 'btn',
+        header: '',
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     fetch('http://localhost:5000/quotes', {
@@ -19,7 +51,19 @@ const Dashboard = (props) => {
         return res.json();
       })
       .then((resData) => {
-        setData(resData);
+        resData.quotes.map((quote) => {
+          quote.change = `${quote.change} (${quote.percent_change.toFixed(
+            2
+          )}%)`;
+          quote.btn = (
+            <Link to={'/dashboard/' + quote.id}>
+              <button>Kup</button>
+            </Link>
+          );
+          return quote;
+        });
+        console.log(resData.message);
+        setData(resData.quotes);
       })
       .catch((err) => {
         console.log(err);
@@ -28,10 +72,25 @@ const Dashboard = (props) => {
 
   return (
     <Card className={classes.home}>
-      <h1>Welcome back!</h1>
+      {/* <h1>Welcome back!</h1>
       Apple <br /> <br /> Obecna cena: {data.c} <br /> Zmiana: {data.d} (
       {data.dp}%) <br /> Cena otwarcia: {data.o} <br /> Cena zamknięcia:{' '}
-      {data.pc}
+      {data.pc} */}
+      <MantineReactTable
+        className={['market-table']}
+        columns={columns}
+        data={data}
+        enableColumnActions={false}
+        enableColumnFilters={false}
+        enablePagination={true}
+        enableSorting={false}
+        enableBottomToolbar={true}
+        enableTopToolbar={false}
+        mantineTableProps={{
+          highlightOnHover: false,
+          withColumnBorders: true,
+        }}
+      />
     </Card>
   );
 };

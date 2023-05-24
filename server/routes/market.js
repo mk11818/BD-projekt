@@ -7,4 +7,6 @@ const router = express.Router();
 
 router.get('/quotes', isAuth, marketController.getQuotes);
 
+router.get('/quote/:id', isAuth, marketController.getQuote);
+
 module.exports = router;

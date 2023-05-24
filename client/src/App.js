@@ -12,6 +12,10 @@ import ErrorHandler from './components/ErrorHandler/ErrorHandler';
 import PrivateRoutes from './util/PrivateRoutes';
 import PublicRoutes from './util/PublicRoutes';
 import ErrorPage from './pages/Error';
+import OpenPositions from './pages/Home/OpenPositions';
+import Orders from './pages/Home/Orders';
+import ClosedPositions from './pages/Home/ClosedPositions';
+import QuoteDetails from './pages/Home/QuoteDetails';
 
 function App() {
   // const [backendData, setBackendData] = useState({});
@@ -187,8 +191,24 @@ function App() {
                   element: <Dashboard token={token} />,
                 },
                 {
+                  path: '/dashboard/:quoteId',
+                  element: <QuoteDetails token={token} />,
+                },
+                {
                   path: 'wallet',
                   element: <Wallet token={token} />,
+                },
+                {
+                  path: 'open-positions',
+                  element: <OpenPositions token={token} />,
+                },
+                {
+                  path: 'orders',
+                  element: <Orders token={token} />,
+                },
+                {
+                  path: 'closed-positions',
+                  element: <ClosedPositions token={token} />,
                 },
               ],
             },

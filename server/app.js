@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
+const finnhub = require('finnhub');
 
 const sequelize = require('./util/database');
 
@@ -11,6 +12,34 @@ const paymentRoutes = require('./routes/payment');
 const User = require('./models/user');
 const Wallet = require('./models/wallet');
 const DepositHistory = require('./models/deposit-history');
+const Company = require('./models/company');
+const Quote = require('./models/quote');
+
+const api_key = finnhub.ApiClient.instance.authentications['api_key'];
+api_key.apiKey = 'chdimu1r01qk9rb2k220chdimu1r01qk9rb2k22g'; // Replace this
+const finnhubClient = new finnhub.DefaultApi();
+
+const symbols = [
+  'TSLA',
+  'META',
+  'FL',
+  'NFLX',
+  'NIO',
+  'PLUG',
+  'SPCE',
+  'PLTR',
+  'AMD',
+  'BABA',
+  'NVDA',
+  'AAPL',
+  'NKE',
+  'CGC',
+  'MSFT',
+  'ZM',
+  'SNAP',
+  'DIS',
+  'SBUX',
+];
 
 const app = express();
 
@@ -48,6 +77,9 @@ Wallet.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(DepositHistory);
 DepositHistory.belongsTo(User);
 
+Company.hasMany(Quote);
+Quote.belongsTo(Company);
+
 sequelize
   //.sync({ force: true })
   .sync()
@@ -62,10 +94,28 @@ sequelize
           email: 'admin@admin.pl',
           password: hashedPw,
           name: 'admin',
-        }).then((user) => {
-          // console.log(user);
-          return user.createWallet();
-        });
+        })
+          .then((user) => {
+            // console.log(user);
+            return user.createWallet();
+          })
+          .then((wallet) => {
+            symbols.forEach((symbol) => {
+              Company.create({ symbol: symbol }).then((company) => {
+                finnhubClient.quote(symbol, (error, data, response) => {
+                  company.createQuote({
+                    current: data.c,
+                    change: data.d,
+                    percent_change: data.dp,
+                    high: data.h,
+                    low: data.l,
+                    open: data.o,
+                    prev_close: data.pc,
+                  });
+                });
+              });
+            });
+          });
       });
     }
     return user;

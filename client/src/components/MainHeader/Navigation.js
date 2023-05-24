@@ -9,7 +9,22 @@ const Navigation = (props) => {
       <ul>
         {props.isLoggedIn && (
           <li>
-            <NavLink to='/dashboard'>Transkacje</NavLink>
+            <NavLink to='/dashboard'>Market</NavLink>
+          </li>
+        )}
+        {props.isLoggedIn && (
+          <li>
+            <NavLink to='/dashboard/open-positions'>Otwarte pozycje</NavLink>
+          </li>
+        )}
+        {props.isLoggedIn && (
+          <li>
+            <NavLink to='/dashboard/orders'>Zlecenia</NavLink>
+          </li>
+        )}
+        {props.isLoggedIn && (
+          <li>
+            <NavLink to='/dashboard/closed-positions'>Zamknięte pozycje</NavLink>
           </li>
         )}
         {props.isLoggedIn && (

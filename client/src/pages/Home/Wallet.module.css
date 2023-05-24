@@ -2,7 +2,6 @@
     width: 90%;
     max-width: 40rem;
     padding: 3rem;
-    margin: 2rem auto;
     text-align: center;
 }
 
@@ -26,4 +25,20 @@ input {
 
 .payment-method {
     margin-top: 4rem;
+}
+
+.green {
+    color: rgb(0, 179, 119);
+}
+
+.red {
+    color: #f55555;
+}
+
+.red a {
+    color: #f55555;
+}
+
+p {
+    font-weight: bold;
 }
