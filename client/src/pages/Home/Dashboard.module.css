@@ -8,3 +8,11 @@
 .market-table {
   margin: 10px;
 }
+
+.green {
+  color: rgb(0, 179, 119);
+}
+
+.red {
+  color: #f55555;
+}

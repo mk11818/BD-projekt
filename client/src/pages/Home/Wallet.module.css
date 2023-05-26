@@ -40,5 +40,9 @@ input {
 }
 
 p {
-    font-weight: bold;
+    margin: 15px;
+}
+
+h4 {
+    margin: 5px;
 }

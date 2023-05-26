@@ -82,7 +82,7 @@ const Wallet = (props) => {
   return (
     <Card className={classes.home}>
       <h1>Portfel</h1>
-      <h4>{value} PLN</h4>
+      <h4>{value.toFixed(2)} PLN</h4>
 
       <form onSubmit={submitHandler}>
         <div className={classes[`form-label`]}>

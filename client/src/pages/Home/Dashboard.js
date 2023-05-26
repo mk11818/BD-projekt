@@ -38,7 +38,7 @@ const Dashboard = (props) => {
     []
   );
 
-  useEffect(() => {
+  const fetchingData = () => {
     fetch('http://localhost:5000/quotes', {
       headers: {
         Authorization: 'Bearer ' + props.token,
@@ -52,9 +52,17 @@ const Dashboard = (props) => {
       })
       .then((resData) => {
         resData.quotes.map((quote) => {
-          quote.change = `${quote.change} (${quote.percent_change.toFixed(
-            2
-          )}%)`;
+          quote.current = quote.current.toFixed(2);
+          quote.change = (
+            <span className={classes[`${quote.change > 0 ? 'green' : 'red'}`]}>
+              {quote.change.toFixed(2)} ({quote.percent_change.toFixed(2)}
+              %)
+            </span>
+          );
+          quote.high = quote.high.toFixed(2);
+          quote.low = quote.low.toFixed(2);
+          quote.open = quote.open.toFixed(2);
+          quote.prev_close = quote.prev_close.toFixed(2);
           quote.btn = (
             <Link to={'/dashboard/' + quote.id}>
               <button>Kup</button>
@@ -62,13 +70,21 @@ const Dashboard = (props) => {
           );
           return quote;
         });
-        console.log(resData.message);
+        console.log(resData);
         setData(resData.quotes);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, [props.token]);
+  };
+
+  useEffect(() => {
+    fetchingData();
+    const interval = setInterval(() => {
+      fetchingData();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Card className={classes.home}>
@@ -83,7 +99,7 @@ const Dashboard = (props) => {
         enableColumnActions={false}
         enableColumnFilters={false}
         enablePagination={true}
-        enableSorting={false}
+        enableSorting={true}
         enableBottomToolbar={true}
         enableTopToolbar={false}
         mantineTableProps={{
