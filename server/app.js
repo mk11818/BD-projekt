@@ -64,91 +64,6 @@ app.use((req, res, next) => {
 //   res.json({ message: 'Hello from server!' });
 // });
 
-app.use((req, res, next) => {
-  cron.schedule('10,20,30,40,50 * * * * *', () => {
-    Order.findAll({ include: Quote })
-      .then((orders) => {
-        if (!orders) {
-          const error = new Error('Orders could not be found.');
-          error.statusCode = 404;
-          throw error;
-        }
-        orders.forEach((order) => {
-          if (order.type === 'buy' && order.rate <= order.quote.current) {
-            User.findByPk(req.userId)
-              .then((user) => {
-                return OpenPosition.create({
-                  type: order.type,
-                  value: order.value,
-                  profit: 0,
-                  change: 0,
-                  quoteId: order.quote.id,
-                  userId: user.id,
-                });
-              })
-              .then((result) => {
-                order.destroy();
-              })
-              .catch((err) => {
-                if (!err.statusCode) {
-                  err.statusCode = 500;
-                }
-                next(err);
-              });
-          }
-          if (order.type === 'sell' && order.rate >= order.quote.current) {
-            User.findByPk(req.userId)
-              .then((user) => {
-                ClosedPosition.create({
-                  type: order.type,
-                  value: order.value,
-                  profit: 0,
-                  change: 0,
-                  quoteId: order.quote.id,
-                  userId: user.id,
-                });
-                OpenPosition.findOne({ where: { quoteId: order.quote.id } })
-                  .then((order) => {
-                    console.log(order);
-                    if (!order) {
-                      const error = new Error('Order could not be found.');
-                      error.statusCode = 404;
-                      throw error;
-                    }
-                    order.destroy();
-                  })
-                  .then((result) => {
-                    // res.status(200).json({ message: 'Order deleted.', result: result });
-                  })
-                  .catch((err) => {
-                    if (!err.statusCode) {
-                      err.statusCode = 500;
-                    }
-                    next(err);
-                  });
-              })
-              .then((result) => {
-                order.destroy();
-              })
-              .catch((err) => {
-                if (!err.statusCode) {
-                  err.statusCode = 500;
-                }
-                next(err);
-              });
-          }
-        });
-      })
-      .catch((err) => {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      });
-  });
-  next();
-});
-
 app.use('/auth', authRoutes);
 app.use(marketRoutes);
 app.use(paymentRoutes);
@@ -243,6 +158,56 @@ sequelize
         });
       });
     });
+
+    cron.schedule('0,10,20,30,40,50 * * * * *', () => {
+      Order.findAll({ include: Quote })
+        .then((orders) => {
+          if (!orders) {
+            const error = new Error('Orders could not be found.');
+            error.statusCode = 404;
+            throw error;
+          }
+          orders.forEach((order) => {
+            if (order.type === 'buy' && order.rate <= order.quote.current) {
+              OpenPosition.create({
+                type: order.type,
+                value: order.value,
+                profit: 0,
+                change: 0,
+                quoteId: order.quote.id,
+                userId: user.id,
+              }).then((result) => {
+                order.destroy();
+              });
+            }
+            if (order.type === 'sell' && order.rate >= order.quote.current) {
+              ClosedPosition.create({
+                type: order.type,
+                value: order.value,
+                profit: 0,
+                change: 0,
+                quoteId: order.quote.id,
+                userId: user.id,
+              });
+              OpenPosition.findOne({ where: { quoteId: order.quote.id } })
+                .then((order) => {
+                  console.log(order);
+                  if (!order) {
+                    const error = new Error('Order could not be found.');
+                    error.statusCode = 404;
+                    throw error;
+                  }
+                  order.destroy();
+                })
+                .then((result) => {
+                  order.destroy();
+                });
+            }
+          });
+        })
+        .catch((err) => console.log(err));
+    });
+
     return user;
   })
   .then((result) => {
