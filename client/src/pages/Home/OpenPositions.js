@@ -93,7 +93,7 @@ const OpenPositions = (props) => {
         enablePagination={true}
         enableSorting={true}
         enableBottomToolbar={true}
-        enableTopToolbar={false}
+        enableTopToolbar={true}
         mantineTableProps={{
           highlightOnHover: false,
           withColumnBorders: true,

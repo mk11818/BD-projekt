@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MantineReactTable } from 'mantine-react-table';
 
+import TablePagination from '../../components/Table/TablePagination';
 import Card from '../../components/UI/Card/Card';
 import classes from './Dashboard.module.css';
 
@@ -11,29 +11,44 @@ const Dashboard = (props) => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'company.symbol',
-        header: 'Instrument',
+        Header: 'Instrument',
+        accessor: 'company.symbol',
       },
       {
-        accessorKey: 'change',
-        header: 'Zmiana',
+        Header: 'Zmiana',
+        accessor: 'change',
       },
       {
-        accessorKey: 'current',
-        header: 'Kup',
+        Header: 'Kup',
+        accessor: 'current',
       },
       {
-        accessorKey: 'high',
-        header: 'Wysoki',
+        Header: 'Wysoki',
+        accessor: 'high',
       },
       {
-        accessorKey: 'low',
-        header: 'Niski',
+        Header: 'Niski',
+        accessor: 'low',
       },
       {
-        accessorKey: 'btn',
-        header: '',
+        Header: '',
+        accessor: 'btn',
       },
+      // {
+      //   Header: 'Action',
+      //   accessor: ({ row }) => {
+      //     return (
+      //       <div className='flex gap-2'>
+      //         <button className='btn btn-xs btn-info'>
+      //           XD
+      //         </button>
+      //         <button className='btn btn-xs btn-error'>
+      //           DX
+      //         </button>
+      //       </div>
+      //     );
+      //   },
+      // },
     ],
     []
   );
@@ -92,20 +107,13 @@ const Dashboard = (props) => {
       Apple <br /> <br /> Obecna cena: {data.c} <br /> Zmiana: {data.d} (
       {data.dp}%) <br /> Cena otwarcia: {data.o} <br /> Cena zamknięcia:{' '}
       {data.pc} */}
-      <MantineReactTable
-        className={['market-table']}
+      <TablePagination
         columns={columns}
         data={data}
-        enableColumnActions={false}
-        enableColumnFilters={false}
-        enablePagination={true}
-        enableSorting={true}
-        enableBottomToolbar={true}
-        enableTopToolbar={false}
-        mantineTableProps={{
-          highlightOnHover: false,
-          withColumnBorders: true,
-        }}
+        //fetchData={fetchData}
+        loading={false}
+        pageCount={2}
+        totalRow={19}
       />
     </Card>
   );

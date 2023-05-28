@@ -1,0 +1,294 @@
+.mantine {
+    border: 0.0625rem solid #dee2e6;
+    outline: 0;
+    display: block;
+    text-decoration: none;
+    color: #000;
+    background-color: #fff;
+    box-sizing: border-box;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.05), 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 100ms ease-in-out;
+}
+
+.mantine-table {
+    max-width: 100%;
+    overflow: auto;
+}
+
+.mantine-table table {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    width: 100%;
+    border-collapse: collapse;
+    caption-side: top;
+    color: #000;
+    line-height: 1.55;
+    display: table;
+}
+
+.mantine-thead {
+    display: table-row-group;
+    position: relative;
+}
+
+.mantine-table thead tr th {
+    border-bottom: 0.0625rem solid #dee2e6;
+}
+
+.mantine-table thead tr th,
+.mantine-table tfoot tr th,
+.mantine-table tbody tr th {
+    text-align: left;
+    font-weight: bold;
+    color: #495057;
+    font-size: 0.875rem;
+    padding: 1rem 1rem;
+}
+
+.mantine-table thead th,
+.mantine-table tbody td {
+    border-right: 0.0625rem solid #dee2e6;
+}
+
+.mantine-thead-tr {
+    background-color: #fff;
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+    display: table-row;
+}
+
+.mantine-thead-th {
+    font-weight: bold;
+    overflow: visible;
+    padding: 16px;
+    user-select: none;
+    vertical-align: top;
+    z-index: 1;
+    background-color: inherit;
+    background-clip: padding-box;
+    display: table-cell;
+    opacity: 1;
+    transition: padding 100ms ease-in-out;
+    min-width: max(calc(var(--header-type-size) * 1px), 40px);
+    width: calc(var(--header-type-size) * 1px);
+}
+
+.mantine-tbody {
+    display: table-row-group;
+    height: inherit;
+    position: relative;
+}
+
+.mantine-tbody-tr {
+    box-sizing: border-box;
+    display: table-row;
+    opacity: 1;
+    transition: all 100ms ease-in-out;
+    width: 100%;
+}
+
+.mantine-table tbody tr:first-of-type td,
+.mantine-tyfpbl tbody tr:first-of-type th {
+    border-top: none;
+}
+
+.mantine-table tr:last-of-type td {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.mantine-table tr:first-of-type td {
+    border-top: 1px solid #dee2e6;
+}
+
+.mantine-table tbody tr td {
+    padding: 1rem 1rem;
+    border-top: 0.0625rem solid #dee2e6;
+    font-size: 0.875rem;
+}
+
+.mantine-tbody-td {
+    cursor: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    z-index: 0;
+    background-color: #fff;
+    background-clip: padding-box;
+    display: table-cell;
+    opacity: 1;
+    transition: padding 100ms ease-in-out;
+    min-width: max(calc(var(--col-type-size) * 1px), 40px);
+    width: calc(var(--col-type-size) * 1px);
+}
+
+.mantine-tfoot {
+    display: table-row-group;
+}
+
+.mantine-toolbar-top {
+    position: relative;
+    align-items: flex-start;
+    background-color: #fff;
+    background-image: none;
+    display: grid;
+    flex-wrap: wrap-reverse;
+    min-height: 3.5rem;
+    overflow: visible;
+    padding: 0 !important;
+    transition: all 100ms ease-in-out;
+    z-index: 3;
+}
+
+.mantine-toolbar-top-tools {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: flex-start;
+    box-sizing: border-box;
+    justify-content: flex-end;
+    padding: 8px;
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
+}
+
+.mantine-toolbar__search {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.mantine-toolbar__search>input {
+    background-color: #f1f3f5;
+    color: #252525;
+}
+
+.mantine-toolbar-bottom {
+    align-items: flex-start;
+    background-color: #fff;
+    background-image: none;
+    display: grid;
+    flex-wrap: wrap-reverse;
+    min-height: 3.5rem;
+    overflow: visible;
+    padding: 0 !important;
+    transition: all 100ms ease-in-out;
+    z-index: 3;
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.1) inset;
+    left: 0;
+    position: relative;
+    right: 0;
+}
+
+.mantine-toolbar-bottom-tools {
+    padding: relative;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: 2;
+}
+
+@media (min-width: 720px) {
+    .mantine-toolbar__pages {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+}
+
+.mantine-toolbar__pages {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    line-height: 1.55;
+}
+
+.mantine-toolbar__pages>label {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #212529;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mantine-toolbar__pages>select {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    height: 2.25rem;
+    line-height: calc(2.25rem - 0.125rem);
+    box-sizing: border-box;
+    font-size: 0.875rem;
+    width: 100%;
+    color: #212529;
+    display: block;
+    text-align: left;
+    border: 0.0625rem solid #ced4da;
+    background-color: #fff;
+    transition: border-color 100ms ease;
+    min-height: 2.25rem;
+    padding-left: calc(2.25rem / 3);
+    padding-right: 2.25rem;
+    border-radius: 0.25rem;
+}
+
+.mantine-toolbar__text {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    color: #212529;
+    font-weight: 400;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.mantine-toolbar__buttons {
+    display: flex;
+    gap: 0.625rem;
+}
+
+.mantine-toolbar__btn:disabled {
+    background-color: transparent;
+    border: none;
+}
+
+.mantine-toolbar__btn:disabled,
+.mantine-toolbar__btn[data-disabled] {
+    color: #ced4da;
+    cursor: not-allowed;
+    background-color: #f1f3f5;
+    border-color: #f1f3f5;
+    background-image: none;
+    pointer-events: none;
+}
+
+.mantine-toolbar__btn {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    cursor: pointer;
+    border: 0;
+    padding: 0;
+    font-size: 1.5rem;
+    background-color: transparent;
+    text-align: left;
+    color: #000;
+    text-decoration: none;
+    box-sizing: border-box;
+    position: relative;
+    border-radius: 0.25rem;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.75rem;
+    min-height: 1.75rem;
+    width: 1.75rem;
+    min-width: 1.75rem;
+    border: 0.0625rem solid transparent;
+    background-color: transparent;
+    color: #4a4d4d;
+}
