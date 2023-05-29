@@ -7,12 +7,16 @@ import classes from './Dashboard.module.css';
 
 const Dashboard = (props) => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalRow, setTotalRow] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
 
   const columns = useMemo(
     () => [
       {
         Header: 'Instrument',
         accessor: 'company.symbol',
+        disableSortBy: true,
       },
       {
         Header: 'Zmiana',
@@ -33,6 +37,7 @@ const Dashboard = (props) => {
       {
         Header: '',
         accessor: 'btn',
+        disableSortBy: true,
       },
       // {
       //   Header: 'Action',
@@ -53,12 +58,28 @@ const Dashboard = (props) => {
     []
   );
 
-  const fetchingData = () => {
-    fetch('http://localhost:5000/quotes', {
-      headers: {
-        Authorization: 'Bearer ' + props.token,
-      },
-    })
+  const fetchingData = (pageIndex, pageSize, search, sortBy) => {
+    setLoading(true);
+    if (!sortBy) {
+      sortBy = { id: '', desc: '' };
+    }
+    fetch(
+      'http://localhost:5000/quotes/?page=' +
+        pageIndex +
+        '&limit=' +
+        pageSize +
+        '&search=' +
+        search +
+        '&sortBy=' +
+        sortBy.id +
+        '&desc=' +
+        sortBy.desc,
+      {
+        headers: {
+          Authorization: 'Bearer ' + props.token,
+        },
+      }
+    )
       .then((res) => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch quotes');
@@ -87,19 +108,22 @@ const Dashboard = (props) => {
         });
         console.log(resData);
         setData(resData.quotes);
+        setTotalRow(resData.totalRow);
+        setPageCount(Math.ceil(resData.totalRow / pageSize));
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  useEffect(() => {
-    fetchingData();
-    const interval = setInterval(() => {
-      fetchingData();
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   fetchingData();
+  //   const interval = setInterval(() => {
+  //     fetchingData();
+  //   }, 60000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <Card className={classes.home}>
@@ -110,10 +134,11 @@ const Dashboard = (props) => {
       <TablePagination
         columns={columns}
         data={data}
-        //fetchData={fetchData}
-        loading={false}
-        pageCount={2}
-        totalRow={19}
+        title='Market'
+        fetchData={fetchingData}
+        loading={loading}
+        pageCount={pageCount}
+        totalRow={totalRow}
       />
     </Card>
   );

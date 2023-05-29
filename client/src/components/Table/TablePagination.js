@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useAsyncDebounce,
   useGlobalFilter,
@@ -23,6 +23,7 @@ import classes from './TablePagination.module.css';
 function TablePagination({
   columns,
   data,
+  title,
   fetchData,
   loading,
   pageCount: controlledPageCount,
@@ -55,7 +56,7 @@ function TablePagination({
       manualSortBy: true,
       initialState: {
         pageIndex: 0,
-        pageSize: 10,
+        pageSize: 5,
       }, // Pass our hoisted table state
       pageCount: controlledPageCount,
       autoResetSortBy: false,
@@ -73,9 +74,10 @@ function TablePagination({
     setGlobalFilter,
   }) => {
     const count = preGlobalFilteredRows;
-    const [value, setValue] = React.useState(globalFilter);
+    const [value, setValue] = useState(globalFilter);
     const onChange = useAsyncDebounce((value) => {
       setGlobalFilter(value || undefined);
+      gotoPage(0);
     }, 700);
 
     return (
@@ -95,14 +97,19 @@ function TablePagination({
     );
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     let search = globalFilter === undefined ? '' : globalFilter;
-    //fetchData(pageSize, pageIndex, search, sortBy);
-  }, [fetchData, pageIndex, pageSize, globalFilter, sortBy]);
+    fetchData(pageIndex, pageSize, search, sortBy[0]);
+    const interval = setInterval(() => {
+      fetchData(pageIndex, pageSize, search, sortBy[0]);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [pageIndex, pageSize, globalFilter, sortBy]);
 
   return (
     <div className={classes.mantine}>
       <div className={classes['mantine-toolbar-top']}>
+        <h2>{title}</h2>
         <div className={classes['mantine-toolbar-top-tools']}>
           <GlobalFilter
             preGlobalFilteredRows={totalRow}
@@ -127,12 +134,12 @@ function TablePagination({
                     <span>
                       {column.isSorted ? (
                         column.isSortedDesc ? (
-                          <FaArrowDown className='h-4 w-4 inline mr-1' />
+                          <FaArrowDown />
                         ) : (
-                          <FaArrowUp className='h-4 w-4 inline mr-1' />
+                          <FaArrowUp />
                         )
                       ) : (
-                        <FaFilter className='h-4 w-4 inline mr-1' />
+                        <FaFilter />
                       )}
                     </span>
                     {column.render('Header')}
@@ -164,29 +171,26 @@ function TablePagination({
                 );
               })
             ) : (
-              <tr className='hover'>
-                <td colSpan={10000} className='text-center'>
-                  Brak danych do wyświetlenia!
+              <tr>
+                <td colSpan={10000}>
+                  {loading ? (
+                    <div className={classes['mantine-loading']}>
+                      <FaClock /> <span>Ładowanie...</span>
+                    </div>
+                  ) : (
+                    <span>Brak danych do wyświetlenia!</span>
+                  )}
                 </td>
               </tr>
             )}
           </tbody>
           <tfoot className={classes['mantine-tfoot']}></tfoot>
         </table>
-        {loading ? (
-          <div>
-            <div>
-              <div>
-                <FaClock /> <span>Ładowanie...</span>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </div>
       <div className={classes['mantine-toolbar-bottom']}>
         <div className={classes['mantine-toolbar-bottom-tools']}>
           <div className={classes['mantine-toolbar__pages']}>
-            <label for='page_count'>Pokaż</label>
+            <label htmlFor='page_count'>Pokaż</label>
             {/* <span>
               | Liczba rekordów:{' '}
               <input
@@ -218,7 +222,7 @@ function TablePagination({
             <strong>
               {pageIndex + 1} - {pageOptions.length}
             </strong>{' '}
-            Łącznie <strong>{preGlobalFilteredRows.length}</strong>{' '}
+            Łącznie <strong>{totalRow}</strong>{' '}
           </div>
           <div className={classes['mantine-toolbar__buttons']}>
             <button

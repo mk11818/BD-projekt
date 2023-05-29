@@ -1,4 +1,4 @@
-const cron = require('node-cron');
+const { Op } = require('sequelize');
 
 const Company = require('../models/company');
 const Order = require('../models/order');
@@ -8,14 +8,35 @@ const OpenPosition = require('../models/open-position');
 const ClosedPosition = require('../models/closed-position');
 
 exports.getQuotes = (req, res, next) => {
-  Quote.findAll({ include: Company })
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+  Quote.findAndCountAll({
+    include: {
+      model: Company,
+      where: {
+        symbol: {
+          [Op.like]: search + '%',
+        },
+      },
+    },
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
     .then((quotes) => {
       if (!quotes) {
         const error = new Error('Quotes could not be found.');
         error.statusCode = 404;
         throw error;
       }
-      res.status(200).json({ message: 'Quotes fetched.', quotes: quotes });
+      res.status(200).json({
+        message: 'Quotes fetched.',
+        quotes: quotes.rows,
+        totalRow: quotes.count,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {
