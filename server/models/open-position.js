@@ -13,17 +13,22 @@ const OpenPosition = sequelize.define('open_positions', {
     type: Sequelize.ENUM('buy', 'sell'),
     allowNull: false,
   },
+  volume: {
+    type: Sequelize.DOUBLE,
+    allowNull: false,
+    defaultValue: 0,
+  },
   value: {
     type: Sequelize.DOUBLE,
     allowNull: false,
     defaultValue: 0.0,
   },
-  profit: {
+  open_price: {
     type: Sequelize.DOUBLE,
     allowNull: false,
     defaultValue: 0.0,
   },
-  change: {
+  profit: {
     type: Sequelize.DOUBLE,
     allowNull: false,
     defaultValue: 0.0,

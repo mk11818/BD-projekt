@@ -23,7 +23,7 @@ const Dashboard = (props) => {
         accessor: 'change',
       },
       {
-        Header: 'Kup',
+        Header: 'Cena rynkowa',
         accessor: 'current',
       },
       {
@@ -33,6 +33,10 @@ const Dashboard = (props) => {
       {
         Header: 'Niski',
         accessor: 'low',
+      },
+      {
+        Header: 'Cena otwarcia',
+        accessor: 'open',
       },
       {
         Header: '',
@@ -88,20 +92,20 @@ const Dashboard = (props) => {
       })
       .then((resData) => {
         resData.quotes.map((quote) => {
-          quote.current = quote.current.toFixed(2);
           quote.change = (
             <span className={classes[`${quote.change > 0 ? 'green' : 'red'}`]}>
               {quote.change.toFixed(2)} ({quote.percent_change.toFixed(2)}
               %)
             </span>
           );
+          quote.current = quote.current.toFixed(2);
           quote.high = quote.high.toFixed(2);
           quote.low = quote.low.toFixed(2);
           quote.open = quote.open.toFixed(2);
           quote.prev_close = quote.prev_close.toFixed(2);
           quote.btn = (
             <Link to={'/dashboard/' + quote.id}>
-              <button>Kup</button>
+              <button className={classes['btn-blue']}>Szczegóły</button>
             </Link>
           );
           return quote;

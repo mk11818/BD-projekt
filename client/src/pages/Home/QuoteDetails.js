@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
+import MarketForm from '../../components/Form/MarketForm';
 
 const QuoteDetails = (props) => {
   const [quote, setQuote] = useState();
   const [wallet, setWallet] = useState();
-  const [amount, setAmount] = useState('');
-  const [valueDolar, setValueDolar] = useState(0);
-  const [valuePLN, setValuePLN] = useState(0);
-  const [rate, setRate] = useState(0);
   const [success, setSuccess] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const [isOrder, setIsOrder] = useState(false);
 
   const { quoteId } = useParams();
 
@@ -30,7 +29,10 @@ const QuoteDetails = (props) => {
       .then((resData) => {
         const fetchedQuote = resData.quote;
         const parsedQuote = {
+          id: fetchedQuote.id,
           current: fetchedQuote.current.toFixed(2),
+          buy: (fetchedQuote.current * 1.005).toFixed(2),
+          sell: (fetchedQuote.current * 0.995).toFixed(2),
           change: fetchedQuote.change.toFixed(2),
           percent_change: fetchedQuote.percent_change.toFixed(2),
           high: fetchedQuote.high.toFixed(2),
@@ -41,7 +43,6 @@ const QuoteDetails = (props) => {
         };
         console.log(resData);
         setQuote(parsedQuote);
-        setRate(parsedQuote.current);
       })
       .catch((err) => {
         console.log(err);
@@ -84,151 +85,114 @@ const QuoteDetails = (props) => {
     return;
   }
 
-  const submitHandler = (event) => {
-    event.preventDefault();
-
-    if (wallet.value >= valuePLN) {
-      fetch('http://localhost:5000/create-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + props.token,
-        },
-        body: JSON.stringify({
-          order: {
-            type: 'buy',
-            value: valueDolar,
-            amount: amount,
-            rate: rate,
-            quoteId: quoteId,
-          },
-        }),
-      })
-        .then((res) => {
-          if (res.status !== 200 && res.status !== 201) {
-            console.log('Error!');
-            throw new Error('Could not create an order!');
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          console.log(resData);
-          setAmount('');
-          setValueDolar(0);
-          setValuePLN(0);
-          setSuccess(true);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  };
-
-  const clickHandler = () => {
-    fetch('http://localhost:5000/create-order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + props.token,
-      },
-      body: JSON.stringify({
-        order: {
-          type: 'sell',
-          value: valueDolar,
-          amount: amount,
-          rate: rate,
-          quoteId: quoteId,
-        },
-      }),
-    })
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          console.log('Error!');
-          throw new Error('Could not create an order!');
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData);
-        setAmount('');
-        setValueDolar(0);
-        setValuePLN(0);
-        setSuccess(true);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   return (
     <Card className={classes.home}>
       <h1>Informacje</h1>
-      <h4>{quote.company.symbol}</h4>
+      <h3>{quote.company.symbol}</h3>
+      <hr />
       <div>
-        <p>Obecna cena: {quote.current}</p>
         <p>
-          Zmiana: {quote.change} ({quote.percent_change}%)
+          <span className={classes['quote-info__title']}> Cena rynkowa: </span>
+          {quote.current}
         </p>
-        <p>Najwyższa cena w dniu: {quote.high}</p>
-        <p>Najniższa cena w dniu: {quote.low}</p>
-        <p>Cena otwarcia: {quote.open}</p>
-        <p>Cena zamknięcia: {quote.prev_close}</p>
+        <p>
+          <span className={classes['quote-info__title']}> Zmiana: </span>
+          {quote.change} ({quote.percent_change}%)
+        </p>
+        <p>
+          <span className={classes['quote-info__title']}>
+            Najwyższa cena w dniu:
+          </span>{' '}
+          {quote.high}
+        </p>
+        <p>
+          <span className={classes['quote-info__title']}>
+            Najniższa cena w dniu:
+          </span>{' '}
+          {quote.low}
+        </p>
+        <p>
+          <span className={classes['quote-info__title']}>Cena otwarcia:</span>{' '}
+          {quote.open}
+        </p>
+        <p>
+          <span className={classes['quote-info__title']}>
+            Poprzednia cena zamknięcia:
+          </span>{' '}
+          {quote.prev_close}
+        </p>
+        <hr />
+        <p>
+          <span className={classes['quote-info__title']}>
+            Obecna cena zakupu:
+          </span>{' '}
+          {quote.buy}
+        </p>
+        <p>
+          <span className={classes['quote-info__title']}>
+            Obecna cena sprzedaży:
+          </span>{' '}
+          {quote.sell}
+        </p>
       </div>
-      <form onSubmit={submitHandler}>
-        <div className={classes[`form-label`]}>
-          {/* <label htmlFor='title'>Kwota: </label> */}
-          <input
-            type='number'
-            name='amount'
-            id='amount'
-            onChange={(e) => {
-              setAmount(e.target.value);
-              setValueDolar(rate * e.target.value);
-              setValuePLN(rate * e.target.value * 4.17);
-              setSuccess(false);
-            }}
-            required
-            min={1}
-            value={amount}
-            placeholder='Ilość akcji'
-          />
-        </div>
-        <h4>Wartość:</h4>
-        <p>{valueDolar.toFixed(2)} $</p>
-        <p>{valuePLN.toFixed(2)} PLN</p>
-        <div className={classes[`form-label`]}>
-          {/* <label htmlFor='title'>Kwota: </label> */}
-          <input
-            type='number'
-            name='price'
-            id='price'
-            onChange={(e) => {
-              setRate(e.target.value);
-              setValueDolar(e.target.value * amount);
-              setValuePLN(e.target.value * amount * 4.17);
-              setSuccess(false);
-            }}
-            required
-            min={0.01}
-            step={0.01}
-            value={rate}
-            placeholder='Kurs'
-          />
-        </div>
-        <div className={classes.payment}>
-          {wallet.value >= valuePLN ? (
-            <h4 className={classes.green}>Wystarczająca ilość funduszy</h4>
-          ) : (
-            <h4 className={classes.red}>
-              Brak funduszy -{' '}
-              <Link to='/dashboard/wallet'>doładuj portfel </Link>
-            </h4>
+
+      <button
+        onClick={() => {
+          setIsBuying(true);
+          setIsOrder(false);
+          setSuccess(false);
+        }}
+        className={classes['btn-blue']}
+      >
+        Zakup natychmiastowy
+      </button>
+      <button
+        onClick={() => {
+          setIsBuying(true);
+          setIsOrder(true);
+          setSuccess(false);
+        }}
+        className={classes['btn-blue']}
+      >
+        Zlecenie oczekujące
+      </button>
+
+      {isBuying && (
+        <>
+          <hr />
+          {!isOrder && (
+            <MarketForm
+              token={props.token}
+              type='buy'
+              title='Zakup natychmiastowy'
+              quote={quote}
+              wallet={wallet}
+              isOrder={isOrder}
+              onSuccess={setSuccess}
+              onFinishOrder={setIsBuying}
+            />
           )}
-          <button type='submit'>Kup</button>
-        </div>
-      </form>
-      <button onClick={clickHandler}>Sprzedaj</button>
-      {success && <h2>Pomyślnie utworzono zlecenie!</h2>}
+          {isOrder && (
+            <MarketForm
+              token={props.token}
+              type='buy'
+              title='Zlecenie oczekujące'
+              quote={quote}
+              wallet={wallet}
+              isOrder={isOrder}
+              onSuccess={setSuccess}
+              onFinishOrder={setIsBuying}
+            />
+          )}
+        </>
+      )}
+      {success && (
+        <h2>
+          {!isOrder
+            ? 'Pomyślnie dokonano zakupu!'
+            : 'Pomyślnie utworzono zlecenie!'}
+        </h2>
+      )}
     </Card>
   );
 };

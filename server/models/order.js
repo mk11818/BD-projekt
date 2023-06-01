@@ -13,17 +13,17 @@ const Order = sequelize.define('order', {
     type: Sequelize.ENUM('buy', 'sell'),
     allowNull: false,
   },
+  volume: {
+    type: Sequelize.DOUBLE,
+    allowNull: false,
+    defaultValue: 0,
+  },
   value: {
     type: Sequelize.DOUBLE,
     allowNull: false,
     defaultValue: 0.0,
   },
-  rate: {
-    type: Sequelize.DOUBLE,
-    allowNull: false,
-    defaultValue: 0.0,
-  },
-  amount: {
+  price: {
     type: Sequelize.DOUBLE,
     allowNull: false,
     defaultValue: 0.0,

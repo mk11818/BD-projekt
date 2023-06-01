@@ -102,7 +102,7 @@ function TablePagination({
     fetchData(pageIndex, pageSize, search, sortBy[0]);
     const interval = setInterval(() => {
       fetchData(pageIndex, pageSize, search, sortBy[0]);
-    }, 60000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [pageIndex, pageSize, globalFilter, sortBy]);
 

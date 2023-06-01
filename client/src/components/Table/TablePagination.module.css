@@ -3,7 +3,9 @@
     outline: 0;
     display: block;
     text-decoration: none;
-    color: #495057;;;
+    color: #495057;
+    ;
+    ;
     background-color: #fff;
     box-sizing: border-box;
     border-radius: 0.25rem;
@@ -22,7 +24,9 @@
     width: 100%;
     border-collapse: collapse;
     caption-side: top;
-    color: #495057;;;
+    color: #495057;
+    ;
+    ;
     line-height: 1.55;
     display: table;
 }
@@ -41,7 +45,9 @@
 .mantine-table tbody tr th {
     text-align: left;
     font-weight: bold;
-    color: #495057;;;
+    color: #495057;
+    ;
+    ;
     font-size: 0.875rem;
     padding: 1rem 1rem;
 }
@@ -144,9 +150,11 @@
     z-index: 3;
 }
 
-.mantine-toolbar-top h2 {
+.mantine-toolbar-top>h2 {
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
     display: block;
+    text-align: left;
+    width: 40%;
 }
 
 .mantine-toolbar-top-tools {
@@ -173,7 +181,9 @@
 
 .mantine-toolbar__search>input {
     background-color: #f1f3f5;
-    color: #495057;;;
+    color: #495057;
+    ;
+    ;
 }
 
 .mantine-toolbar-bottom {
@@ -224,7 +234,8 @@
     display: inline-block;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #495057;;
+    color: #495057;
+    ;
     cursor: default;
 }
 
@@ -235,7 +246,8 @@
     box-sizing: border-box;
     font-size: 0.875rem;
     width: 100%;
-    color: #495057;;
+    color: #495057;
+    ;
     display: block;
     text-align: left;
     border: 0.0625rem solid #ced4da;
@@ -249,7 +261,8 @@
 
 .mantine-toolbar__text {
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
-    color: #495057;;
+    color: #495057;
+    ;
     font-weight: 400;
     font-size: 1rem;
     text-decoration: none;
@@ -283,7 +296,8 @@
     font-size: 1.5rem;
     background-color: transparent;
     text-align: left;
-    color: #495057;;
+    color: #495057;
+    ;
     text-decoration: none;
     box-sizing: border-box;
     position: relative;

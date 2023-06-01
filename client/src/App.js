@@ -17,6 +17,26 @@ import Orders from './pages/Home/Orders';
 import ClosedPositions from './pages/Home/ClosedPositions';
 import QuoteDetails from './pages/Home/QuoteDetails';
 
+function padTo2Digits(num) {
+  return num.toString().padStart(2, '0');
+}
+
+function formatDate(date) {
+  return (
+    [
+      date.getFullYear(),
+      padTo2Digits(date.getMonth() + 1),
+      padTo2Digits(date.getDate()),
+    ].join('-') +
+    ' ' +
+    [
+      padTo2Digits(date.getHours()),
+      padTo2Digits(date.getMinutes()),
+      padTo2Digits(date.getSeconds()),
+    ].join(':')
+  );
+}
+
 function App() {
   // const [backendData, setBackendData] = useState({});
 
@@ -200,11 +220,13 @@ function App() {
                 },
                 {
                   path: 'open-positions',
-                  element: <OpenPositions token={token} />,
+                  element: (
+                    <OpenPositions token={token} formatDate={formatDate} />
+                  ),
                 },
                 {
                   path: 'orders',
-                  element: <Orders token={token} />,
+                  element: <Orders token={token} formatDate={formatDate} />,
                 },
                 {
                   path: 'closed-positions',

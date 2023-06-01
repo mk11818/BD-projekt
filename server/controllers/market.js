@@ -13,6 +13,7 @@ exports.getQuotes = (req, res, next) => {
   const search = req.query.search || '';
   const sortBy = req.query.sortBy;
   const desc = req.query.desc;
+
   Quote.findAndCountAll({
     include: {
       model: Company,
@@ -64,10 +65,52 @@ exports.getQuote = (req, res, next) => {
     });
 };
 
-exports.createOrder = (req, res, next) => {
+exports.instantBuy = (req, res, next) => {
   const order = req.body.order;
 
-  let fetchedQuote;
+  User.findByPk(req.userId)
+    .then((user) => {
+      OpenPosition.create({
+        type: order.type,
+        volume: order.volume,
+        value: order.value,
+        open_price: order.open_price,
+        profit: 0,
+        change: 0,
+        quoteId: order.quoteId,
+        userId: user.id,
+      })
+        .then((result) => {
+          // console.log(result);
+        })
+        .catch((err) => {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        });
+
+      return user.getWallet();
+    })
+    .then((wallet) => {
+      wallet.value = wallet.value - +(order.value * 4.17).toFixed(2);
+      return wallet.save();
+    })
+    .then((result) => {
+      res
+        .status(201)
+        .json({ message: 'Position opened succesfully.', order: result });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.createOrder = (req, res, next) => {
+  const order = req.body.order;
 
   User.findByPk(req.userId)
     .then((user) => {
@@ -92,14 +135,15 @@ exports.createOrder = (req, res, next) => {
       next(err);
     });
 
+  console.log(order.quoteId);
+
   Quote.findByPk(order.quoteId)
     .then((quote) => {
-      fetchedQuote = quote;
       return quote.createOrder({
         type: order.type,
+        volume: order.volume,
         value: order.value,
-        rate: order.rate,
-        amount: order.amount,
+        price: order.price,
         userId: req.userId,
       });
     })
@@ -117,14 +161,43 @@ exports.createOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  Order.findAll({ include: [{ model: Quote, include: [Company] }] })
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+
+  Order.findAndCountAll({
+    include: [
+      {
+        model: Quote,
+        include: {
+          model: Company,
+          where: {
+            symbol: {
+              [Op.like]: search + '%',
+            },
+          },
+        },
+      },
+    ],
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
     .then((orders) => {
       if (!orders) {
         const error = new Error('Orders could not be found.');
         error.statusCode = 404;
         throw error;
       }
-      res.status(200).json({ message: 'Orders fetched.', orders: orders });
+      res
+        .status(200)
+        .json({
+          message: 'Orders fetched.',
+          orders: orders.rows,
+          totalRow: orders.count,
+        });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -175,16 +248,41 @@ exports.deleteOrder = (req, res, next) => {
 };
 
 exports.getOpenPositions = (req, res, next) => {
-  OpenPosition.findAll({ include: [{ model: Quote, include: [Company] }] })
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+
+  OpenPosition.findAndCountAll({
+    include: [
+      {
+        model: Quote,
+        include: {
+          model: Company,
+          where: {
+            symbol: {
+              [Op.like]: search + '%',
+            },
+          },
+        },
+      },
+    ],
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
     .then((positions) => {
       if (!positions) {
         const error = new Error('Open positions could not be found.');
         error.statusCode = 404;
         throw error;
       }
-      res
-        .status(200)
-        .json({ message: 'Orders fetched.', positions: positions });
+      res.status(200).json({
+        message: 'Orders fetched.',
+        positions: positions.rows,
+        totalRow: positions.count,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {

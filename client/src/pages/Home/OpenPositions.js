@@ -1,53 +1,83 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MantineReactTable } from 'mantine-react-table';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Dashboard.module.css';
+import TablePagination from '../../components/Table/TablePagination';
 
 const OpenPositions = (props) => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalRow, setTotalRow] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
 
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'type',
-        header: 'Typ',
+        Header: 'Typ',
+        accessor: 'type',
       },
       {
-        accessorKey: 'quote.company.symbol',
-        header: 'Instrument',
+        Header: 'Instrument',
+        accessor: 'quote.company.symbol',
+        disableSortBy: true,
       },
       {
-        accessorKey: 'valuePLN',
-        header: 'Wartość',
+        Header: 'Wolumen',
+        accessor: 'volume',
       },
       {
-        accessorKey: 'profit',
-        header: 'Zysk / strata',
+        Header: 'Wartość',
+        accessor: 'value',
       },
       {
-        accessorKey: 'change',
-        header: 'Zmiana',
+        Header: 'Cena otwarcia',
+        accessor: 'open_price',
       },
       {
-        accessorKey: 'createdAt',
-        header: 'Data zakupu',
+        Header: 'Cena rynkowa',
+        accessor: 'quote.current',
+        disableSortBy: true,
       },
       {
-        accessorKey: 'btn',
-        header: '',
+        Header: 'Zysk / strata',
+        accessor: 'profit',
+      },
+      {
+        Header: 'Data zakupu',
+        accessor: 'createdAt',
+      },
+      {
+        Header: '',
+        accessor: 'btn',
+        disableSortBy: true,
       },
     ],
     []
   );
 
-  const fetchingOrders = () => {
-    fetch('http://localhost:5000/open-positions', {
-      headers: {
-        Authorization: 'Bearer ' + props.token,
-      },
-    })
+  const fetchingOrders = (pageIndex, pageSize, search, sortBy) => {
+    setLoading(true);
+    if (!sortBy) {
+      sortBy = { id: '', desc: '' };
+    }
+    fetch(
+      'http://localhost:5000/open-positions/?page=' +
+        pageIndex +
+        '&limit=' +
+        pageSize +
+        '&search=' +
+        search +
+        '&sortBy=' +
+        sortBy.id +
+        '&desc=' +
+        sortBy.desc,
+      {
+        headers: {
+          Authorization: 'Bearer ' + props.token,
+        },
+      }
+    )
       .then((res) => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch open positions');
@@ -58,46 +88,38 @@ const OpenPositions = (props) => {
         console.log(resData);
         resData.positions.map((position) => {
           position.type = 'Kup';
-          position.valuePLN = `${position.value} (${(
+          position.value = `${position.value} (${(
             position.value * 4.17
           ).toFixed(2)} zł)`;
+          position.quote.current = (position.quote.current * 0.995).toFixed(2);
+          position.createdAt = props.formatDate(new Date(position.createdAt));
           position.btn = (
             <Link to={'/dashboard/' + position.quote.id}>
-              <button>Sprzedaj</button>
+              <button className={classes['btn-blue']}>Sprzedaj</button>
             </Link>
           );
         });
+        console.log(resData.positions);
         setOrders(resData.positions);
+        setTotalRow(resData.totalRow);
+        setPageCount(Math.ceil(resData.totalRow / pageSize));
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  useEffect(() => {
-    fetchingOrders();
-    const interval = setInterval(() => {
-      fetchingOrders();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <Card className={classes.home}>
-      <MantineReactTable
-        className={['market-table']}
+      <TablePagination
         columns={columns}
         data={orders}
-        enableColumnActions={false}
-        enableColumnFilters={false}
-        enablePagination={true}
-        enableSorting={true}
-        enableBottomToolbar={true}
-        enableTopToolbar={true}
-        mantineTableProps={{
-          highlightOnHover: false,
-          withColumnBorders: true,
-        }}
+        title='Otwarte pozycje'
+        fetchData={fetchingOrders}
+        loading={loading}
+        pageCount={pageCount}
+        totalRow={totalRow}
       />
     </Card>
   );
