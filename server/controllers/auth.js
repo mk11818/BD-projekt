@@ -4,16 +4,19 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.register = (req, res, next) => {
-  const email = req.body.email;
-  const name = req.body.name;
-  const password = req.body.password;
+  const userData = req.body.userData;
+  console.log(userData);
   bcrypt
-    .hash(password, 12)
+    .hash(userData.password, 12)
     .then((hashedPw) => {
       return User.create({
-        email: email,
+        first_name: userData.firstName,
+        last_name: userData.lastName,
+        name: userData.name,
+        email: userData.email,
         password: hashedPw,
-        name: name,
+        birth_date: userData.birthDate,
+        phone_number: userData.phoneNumber,
       });
     })
     .then((result) => {

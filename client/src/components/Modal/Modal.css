@@ -10,12 +10,12 @@
 }
 
 .modal__header {
-  border-bottom: 2px solid #3b0062;
+  border-bottom: 2px solid rgb(0, 171, 214);;
 }
 
 .modal__header h1 {
   font-size: 1.5rem;
-  color: #3b0062;
+  color: rgb(0, 171, 214);;
   margin: 1rem;
 }
 

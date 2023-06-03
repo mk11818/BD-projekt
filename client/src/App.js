@@ -134,16 +134,14 @@ function App() {
       });
   };
 
-  const registerHandler = (user, email, pwd) => {
+  const registerHandler = (userData) => {
     fetch('http://localhost:5000/auth/register', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: user,
-        email: email,
-        password: pwd,
+        userData: userData,
       }),
     })
       .then((res) => {

@@ -10,6 +10,11 @@ const RegisterPage = (props) => {
   const userRef = useRef();
   const errRef = useRef();
 
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
   const [user, setUser] = useState('');
   const [validName, setValidName] = useState(false);
   const [userFocus, setUserFocus] = useState(false);
@@ -29,7 +34,7 @@ const RegisterPage = (props) => {
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     userRef.current.focus();
@@ -51,6 +56,16 @@ const RegisterPage = (props) => {
   const submitHandler = (e) => {
     e.preventDefault();
 
+    const userData = {
+      firstName: firstName,
+      lastName: lastName,
+      name: user,
+      email: email,
+      password: pwd,
+      birthDate: birthDate,
+      phoneNumber: phoneNumber,
+    };
+
     const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
     if (!v1) {
@@ -59,15 +74,22 @@ const RegisterPage = (props) => {
     } else if (!v2) {
       setErrMsg('Niepoprawne hasło');
       return;
+    } else if (!validMatch) {
+      setErrMsg('Hasła muszą się zgadzać');
+      return;
     }
     try {
-      props.onRegister(user, email, pwd);
+      props.onRegister(userData);
       setSuccess(true);
+      setFirstName('');
+      setLastName('');
       setUser('');
       setEmail('');
       setPwd('');
       setMatchPwd('');
-      navigate('/');
+      setBirthDate('');
+      setPhoneNumber('');
+      // navigate('/');
     } catch (err) {
       if (!err.response) {
         setErrMsg('Brak odpowiedzi od serwera');
@@ -89,11 +111,37 @@ const RegisterPage = (props) => {
         </div>
       ) : ( */}
       <div className='auth-form-container'>
+        {success && <p className='succesmsg'>Pomyślnie zarejestrowano!</p>}
         <p ref={errRef} className={errMsg ? 'errmsg' : 'offscreen'}>
           {errMsg}
         </p>
         <h2>Rejestracja</h2>
         <form className='register-form' onSubmit={submitHandler}>
+          <label htmlFor='first_name'>Imię</label>
+          <input
+            type='text'
+            id='first_name'
+            name='first_name'
+            autoComplete='off'
+            value={firstName}
+            onChange={(e) => {
+              setFirstName(e.target.value);
+              setSuccess(false);
+            }}
+            required
+            placeholder='imie'
+          />
+          <label htmlFor='last_name'>Naziwsko</label>
+          <input
+            type='text'
+            id='last_name'
+            name='last_name'
+            autoComplete='off'
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+            placeholder='nazwisko'
+          />
           <label htmlFor='username'>Nazwa użytkownika</label>
           <input
             type='text'
@@ -154,7 +202,9 @@ const RegisterPage = (props) => {
           >
             8 do 24 liter.
             <br />
-            Musi zawierać dużą i małą literę, a cyfrę oraz znak specyjalny.
+            Musi zawierać dużą i małą literę,
+            <br />
+            oraz cyfrę i znak specyjalny.
             <br />
             Dozwolone znaki specyjalne:{' '}
             <span aria-label='exclamation mark'>!</span>{' '}
@@ -183,6 +233,27 @@ const RegisterPage = (props) => {
           >
             Hasła muszą się zgadzac.
           </p>
+          <label htmlFor='birth_date'>Data Urodzenia</label>
+          <input
+            type='date'
+            id='birth_date'
+            name='birth_date'
+            autoComplete='off'
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            required
+          />
+          <label htmlFor='phone_number'>Numer telefonu</label>
+          <input
+            type='text'
+            id='phone_number'
+            name='phone_number'
+            autoComplete='off'
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            required
+            placeholder='000000000'
+          />
           <button type='submit'>Zarejestruj się</button>
         </form>
         <Link
@@ -193,7 +264,6 @@ const RegisterPage = (props) => {
           Masz już konto? Zaloguj się.
         </Link>
       </div>
-      {/* )} */}
     </>
   );
 };

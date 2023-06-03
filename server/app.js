@@ -11,6 +11,7 @@ const marketRoutes = require('./routes/market');
 const paymentRoutes = require('./routes/payment');
 
 const User = require('./models/user');
+const Role = require('./models/role');
 const Wallet = require('./models/wallet');
 const DepositHistory = require('./models/deposit-history');
 const Company = require('./models/company');
@@ -22,6 +23,8 @@ const ClosedPosition = require('./models/closed-position');
 const api_key = finnhub.ApiClient.instance.authentications['api_key'];
 api_key.apiKey = 'chdimu1r01qk9rb2k220chdimu1r01qk9rb2k22g'; // Replace this
 const finnhubClient = new finnhub.DefaultApi();
+
+const roles = ['admin', 'user'];
 
 const symbols = [
   'TSLA',
@@ -76,6 +79,14 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
+Role.hasMany(User, {
+  foreignKey: {
+    allowNull: false,
+    defaultValue: 2,
+  },
+});
+User.belongsTo(Role, { constraints: true, onDelete: 'CASCADE' });
+
 User.hasOne(Wallet);
 Wallet.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(DepositHistory);
@@ -108,11 +119,22 @@ sequelize
   })
   .then((user) => {
     if (!user) {
+      roles.forEach((role) => {
+        Role.create({
+          name: role,
+        });
+      });
+
       return bcrypt.hash('admin123!@', 12).then((hashedPw) => {
         return User.create({
+          first_name: 'Jan',
+          last_name: 'Kowalski',
+          name: 'admin',
           email: 'admin@admin.pl',
           password: hashedPw,
-          name: 'admin',
+          birth_date: '1999.01.01',
+          phone_number: '123456789',
+          roleId: '1',
         })
           .then((user) => {
             // console.log(user);

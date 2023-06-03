@@ -182,8 +182,6 @@
 .mantine-toolbar__search>input {
     background-color: #f1f3f5;
     color: #495057;
-    ;
-    ;
 }
 
 .mantine-toolbar-bottom {
@@ -235,7 +233,6 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: #495057;
-    ;
     cursor: default;
 }
 
@@ -247,7 +244,6 @@
     font-size: 0.875rem;
     width: 100%;
     color: #495057;
-    ;
     display: block;
     text-align: left;
     border: 0.0625rem solid #ced4da;
@@ -262,7 +258,6 @@
 .mantine-toolbar__text {
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
     color: #495057;
-    ;
     font-weight: 400;
     font-size: 1rem;
     text-decoration: none;
@@ -297,7 +292,6 @@
     background-color: transparent;
     text-align: left;
     color: #495057;
-    ;
     text-decoration: none;
     box-sizing: border-box;
     position: relative;
@@ -313,5 +307,4 @@
     min-width: 1.75rem;
     border: 0.0625rem solid transparent;
     background-color: transparent;
-    color: #4a4d4d;
 }
