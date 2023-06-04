@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import TablePagination from '../../components/Table/TablePagination';
+import Backdrop from '../../components/Backdrop/Backdrop';
+import Modal from '../../components/Modal/Modal';
 import Card from '../../components/UI/Card/Card';
 import classes from './Dashboard.module.css';
 
@@ -10,12 +11,18 @@ const Orders = (props) => {
   const [loading, setLoading] = useState(false);
   const [totalRow, setTotalRow] = useState(0);
   const [pageCount, setPageCount] = useState(0);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelOrder, setCancelOrder] = useState({});
 
   const columns = useMemo(
     () => [
       {
         Header: 'Typ',
         accessor: 'type',
+      },
+      {
+        Header: 'Numer',
+        accessor: 'id',
       },
       {
         Header: 'Instrument',
@@ -35,8 +42,8 @@ const Orders = (props) => {
         accessor: 'price',
       },
       {
-        Header: 'Cena rynkowa',
-        accessor: 'quote.current',
+        Header: 'Cena zakupu',
+        accessor: 'quote.buy',
         disableSortBy: true,
       },
       {
@@ -81,22 +88,24 @@ const Orders = (props) => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData);
         resData.orders.map((order) => {
+          const fetchedOrder = { ...order };
           if (order.type === 'buy') {
             order.type = 'Kup';
           } else {
             order.type = 'Sprzedaj';
           }
-          order.value = `${order.value} (${(order.value * 4.17).toFixed(
-            2
-          )} zł)`;
-          order.quote.current = order.quote.current.toFixed(2);
+          order.value = `${order.value.toFixed(2)} (${(
+            order.value * 4.17
+          ).toFixed(2)} zł)`;
+          order.price = order.price.toFixed(2);
+          order.quote.buy = order.quote.buy.toFixed(2);
           order.createdAt = props.formatDate(new Date(order.createdAt));
           order.btn = (
             <button
               onClick={() => {
-                deleteOrderHandler(order);
+                setCancelOrder(fetchedOrder);
+                setIsCancelling(true);
               }}
               className={classes['btn-red']}
             >
@@ -134,6 +143,8 @@ const Orders = (props) => {
       })
       .then((resData) => {
         console.log(resData);
+        setCancelOrder({});
+        setIsCancelling(false);
       })
       .catch((err) => {
         console.log(err);
@@ -141,17 +152,32 @@ const Orders = (props) => {
   };
 
   return (
-    <Card className={classes.home}>
-      <TablePagination
-        columns={columns}
-        data={orders}
-        title='Zlecenia'
-        fetchData={fetchingOrders}
-        loading={loading}
-        pageCount={pageCount}
-        totalRow={totalRow}
-      />
-    </Card>
+    <>
+      {isCancelling && (
+        <>
+          <Backdrop />
+          <Modal
+            title={`Zlecenie nr ${cancelOrder.id}`}
+            acceptEnabled={true}
+            onCancelModal={() => setIsCancelling(false)}
+            onAcceptModal={() => deleteOrderHandler(cancelOrder)}
+          >
+            <p>Czy napewno chcesz anulować podane zlecenie?</p>
+          </Modal>
+        </>
+      )}
+      <Card className={classes.home}>
+        <TablePagination
+          columns={columns}
+          data={orders}
+          title='Zlecenia'
+          fetchData={fetchingOrders}
+          loading={loading}
+          pageCount={pageCount}
+          totalRow={totalRow}
+        />
+      </Card>
+    </>
   );
 };
 

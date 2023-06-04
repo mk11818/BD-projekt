@@ -93,7 +93,7 @@ const Dashboard = (props) => {
       .then((resData) => {
         resData.quotes.map((quote) => {
           quote.change = (
-            <span className={classes[`${quote.change > 0 ? 'green' : 'red'}`]}>
+            <span className={classes[`${quote.change >= 0 ? 'green' : 'red'}`]}>
               {quote.change.toFixed(2)} ({quote.percent_change.toFixed(2)}
               %)
             </span>

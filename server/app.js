@@ -145,13 +145,15 @@ sequelize
               Company.create({ symbol: symbol }).then((company) => {
                 finnhubClient.quote(symbol, (error, data, response) => {
                   company.createQuote({
-                    current: data.c,
-                    change: data.d,
-                    percent_change: data.dp,
-                    high: data.h,
-                    low: data.l,
-                    open: data.o,
-                    prev_close: data.pc,
+                    current: data.c.toFixed(2),
+                    buy: (data.c * 1.005).toFixed(2),
+                    sell: (data.c * 0.995).toFixed(2),
+                    change: data.d.toFixed(2),
+                    percent_change: data.dp.toFixed(2),
+                    high: data.h.toFixed(2),
+                    low: data.l.toFixed(2),
+                    open: data.o.toFixed(2),
+                    prev_close: data.pc.toFixed(2),
                   });
                 });
               });
@@ -166,13 +168,15 @@ sequelize
           finnhubClient.quote(symbol, (error, data, response) => {
             Quote.update(
               {
-                current: data.c,
-                change: data.d,
-                percent_change: data.dp,
-                high: data.h,
-                low: data.l,
-                open: data.o,
-                prev_close: data.pc,
+                current: data.c.toFixed(2),
+                buy: (data.c * 1.005).toFixed(2),
+                sell: (data.c * 0.995).toFixed(2),
+                change: data.d.toFixed(2),
+                percent_change: data.dp.toFixed(2),
+                high: data.h.toFixed(2),
+                low: data.l.toFixed(2),
+                open: data.o.toFixed(2),
+                prev_close: data.pc.toFixed(2),
               },
               { where: { companyId: company.id } }
             );
@@ -190,19 +194,19 @@ sequelize
             throw error;
           }
           orders.forEach((order) => {
-            if (order.type === 'buy' && order.rate <= order.quote.current) {
+            if (order.type === 'buy' && order.price === order.quote.buy) {
               OpenPosition.create({
                 type: order.type,
+                volume: order.volume,
                 value: order.value,
-                profit: 0,
-                change: 0,
+                open_price: order.price,
                 quoteId: order.quote.id,
                 userId: user.id,
               }).then((result) => {
                 order.destroy();
               });
             }
-            if (order.type === 'sell' && order.rate >= order.quote.current) {
+            if (order.type === 'sell' && order.rate === order.quote.sell) {
               ClosedPosition.create({
                 type: order.type,
                 value: order.value,

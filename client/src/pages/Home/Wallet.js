@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { FaArrowUp } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
 import Card from '../../components/UI/Card/Card';
@@ -104,9 +104,9 @@ const Wallet = (props) => {
           <button type='submit'>
             <FaArrowUp /> Wpłać środki
           </button>
-          {/* <button>
+          <button disabled>
             <FaArrowDown /> Wypłać środki
-          </button> */}
+          </button>
         </div>
       </form>
 

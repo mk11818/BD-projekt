@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, or } = require('sequelize');
 
 const Company = require('../models/company');
 const Order = require('../models/order');
@@ -56,50 +56,6 @@ exports.getQuote = (req, res, next) => {
         throw error;
       }
       res.status(200).json({ message: 'Quote fetched.', quote: quote });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
-};
-
-exports.instantBuy = (req, res, next) => {
-  const order = req.body.order;
-
-  User.findByPk(req.userId)
-    .then((user) => {
-      OpenPosition.create({
-        type: order.type,
-        volume: order.volume,
-        value: order.value,
-        open_price: order.open_price,
-        profit: 0,
-        change: 0,
-        quoteId: order.quoteId,
-        userId: user.id,
-      })
-        .then((result) => {
-          // console.log(result);
-        })
-        .catch((err) => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-          }
-          next(err);
-        });
-
-      return user.getWallet();
-    })
-    .then((wallet) => {
-      wallet.value = wallet.value - +(order.value * 4.17).toFixed(2);
-      return wallet.save();
-    })
-    .then((result) => {
-      res
-        .status(201)
-        .json({ message: 'Position opened succesfully.', order: result });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -191,13 +147,11 @@ exports.getOrders = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      res
-        .status(200)
-        .json({
-          message: 'Orders fetched.',
-          orders: orders.rows,
-          totalRow: orders.count,
-        });
+      res.status(200).json({
+        message: 'Orders fetched.',
+        orders: orders.rows,
+        totalRow: orders.count,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -209,6 +163,8 @@ exports.getOrders = (req, res, next) => {
 
 exports.deleteOrder = (req, res, next) => {
   const order = req.body.order;
+  console.log(order);
+
   User.findByPk(req.userId)
     .then((user) => {
       return user.getWallet();

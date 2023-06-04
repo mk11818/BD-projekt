@@ -28,11 +28,6 @@ const OpenPosition = sequelize.define('open_positions', {
     allowNull: false,
     defaultValue: 0.0,
   },
-  profit: {
-    type: Sequelize.DOUBLE,
-    allowNull: false,
-    defaultValue: 0.0,
-  },
 });
 
 module.exports = OpenPosition;

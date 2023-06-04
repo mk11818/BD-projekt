@@ -13,77 +13,40 @@ const MarketForm = (props) => {
     event.preventDefault();
 
     if (props.wallet.value >= valuePLN) {
-      if (!props.isOrder) {
-        fetch('http://localhost:5000/instant-buy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + props.token,
+      fetch('http://localhost:5000/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + props.token,
+        },
+        body: JSON.stringify({
+          order: {
+            type: props.type,
+            volume: volume,
+            value: valueDolar,
+            price: priceBuy,
+            quoteId: props.quote.id,
           },
-          body: JSON.stringify({
-            order: {
-              type: props.type,
-              volume: volume,
-              value: valueDolar,
-              open_price: priceBuy,
-              quoteId: props.quote.id,
-            },
-          }),
+        }),
+      })
+        .then((res) => {
+          if (res.status !== 200 && res.status !== 201) {
+            console.log('Error!');
+            throw new Error('Could not create an order!');
+          }
+          return res.json();
         })
-          .then((res) => {
-            if (res.status !== 200 && res.status !== 201) {
-              console.log('Error!');
-              throw new Error('Could not create an order!');
-            }
-            return res.json();
-          })
-          .then((resData) => {
-            console.log(resData);
-            setVolume('');
-            setValueDolar(0);
-            setValuePLN(0);
-            props.onSuccess(true);
-            props.onFinishOrder(false);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        fetch('http://localhost:5000/create-order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + props.token,
-          },
-          body: JSON.stringify({
-            order: {
-              type: props.type,
-              volume: volume,
-              value: valueDolar,
-              price: priceBuy,
-              quoteId: props.quote.id,
-            },
-          }),
+        .then((resData) => {
+          console.log(resData);
+          setVolume('');
+          setValueDolar(0);
+          setValuePLN(0);
+          props.onSuccess(true);
+          props.onFinishOrder(false);
         })
-          .then((res) => {
-            if (res.status !== 200 && res.status !== 201) {
-              console.log('Error!');
-              throw new Error('Could not create an order!');
-            }
-            return res.json();
-          })
-          .then((resData) => {
-            console.log(resData);
-            setVolume('');
-            setValueDolar(0);
-            setValuePLN(0);
-            props.onSuccess(true);
-            props.onFinishOrder(false);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 

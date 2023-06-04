@@ -14,6 +14,16 @@ const Quote = sequelize.define('quote', {
     allowNull: false,
     defaultValue: 0.0,
   },
+  buy: {
+    type: Sequelize.DOUBLE,
+    allowNull: false,
+    defaultValue: 0.0,
+  },
+  sell: {
+    type: Sequelize.DOUBLE,
+    allowNull: false,
+    defaultValue: 0.0,
+  },
   change: {
     type: Sequelize.DOUBLE,
     allowNull: false,

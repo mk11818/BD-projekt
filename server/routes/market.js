@@ -8,8 +8,6 @@ const router = express.Router();
 router.get('/quotes', isAuth, marketController.getQuotes);
 router.get('/quote/:id', isAuth, marketController.getQuote);
 
-router.post('/instant-buy', isAuth, marketController.instantBuy);
-
 router.get('/orders', isAuth, marketController.getOrders);
 router.post('/create-order', isAuth, marketController.createOrder);
 router.post('/delete-order', isAuth, marketController.deleteOrder);

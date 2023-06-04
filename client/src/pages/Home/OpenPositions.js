@@ -35,13 +35,14 @@ const OpenPositions = (props) => {
         accessor: 'open_price',
       },
       {
-        Header: 'Cena rynkowa',
-        accessor: 'quote.current',
+        Header: 'Cena sprzedaży',
+        accessor: 'quote.sell',
         disableSortBy: true,
       },
       {
         Header: 'Zysk / strata',
         accessor: 'profit',
+        disableSortBy: true,
       },
       {
         Header: 'Data zakupu',
@@ -88,10 +89,23 @@ const OpenPositions = (props) => {
         console.log(resData);
         resData.positions.map((position) => {
           position.type = 'Kup';
-          position.value = `${position.value} (${(
+          position.profit =
+            position.volume * position.quote.sell * 4.17 -
+            position.value * 4.17;
+          position.profit = (
+            <span
+              className={classes[`${position.profit >= 0 ? 'green' : 'red'}`]}
+            >
+              {position.profit.toFixed(2)} zł (
+              {((position.profit / (position.value * 4.17)) * 100).toFixed(2)}
+              %)
+            </span>
+          );
+          position.value = `${position.value.toFixed(2)} (${(
             position.value * 4.17
           ).toFixed(2)} zł)`;
-          position.quote.current = (position.quote.current * 0.995).toFixed(2);
+          position.open_price = position.open_price.toFixed(2);
+          position.quote.sell = position.quote.sell.toFixed(2);
           position.createdAt = props.formatDate(new Date(position.createdAt));
           position.btn = (
             <Link to={'/dashboard/' + position.quote.id}>

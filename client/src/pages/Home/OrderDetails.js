@@ -5,7 +5,7 @@ import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
 import MarketForm from '../../components/Form/MarketForm';
 
-const QuoteDetails = (props) => {
+const OrderDetails = (props) => {
   const [quote, setQuote] = useState();
   const [wallet, setWallet] = useState();
   const [success, setSuccess] = useState(false);
@@ -27,7 +27,7 @@ const QuoteDetails = (props) => {
         return res.json();
       })
       .then((resData) => {
-        const fetchedQuote = { ...resData.quote };
+        const fetchedQuote = resData.quote;
         const parsedQuote = {
           id: fetchedQuote.id,
           current: fetchedQuote.current.toFixed(2),
@@ -197,4 +197,4 @@ const QuoteDetails = (props) => {
   );
 };
 
-export default QuoteDetails;
+export default OrderDetails;
