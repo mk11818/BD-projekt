@@ -42,8 +42,8 @@ const Orders = (props) => {
         accessor: 'price',
       },
       {
-        Header: 'Cena zakupu',
-        accessor: 'quote.buy',
+        Header: 'Cena zakupu / sprzedaży',
+        accessor: 'quotePrice',
         disableSortBy: true,
       },
       {
@@ -92,14 +92,15 @@ const Orders = (props) => {
           const fetchedOrder = { ...order };
           if (order.type === 'buy') {
             order.type = 'Kup';
+            order.quotePrice = order.quote.buy.toFixed(2);
           } else {
             order.type = 'Sprzedaj';
+            order.quotePrice = order.quote.sell.toFixed(2);
           }
           order.value = `${order.value.toFixed(2)} (${(
             order.value * 4.17
           ).toFixed(2)} zł)`;
           order.price = order.price.toFixed(2);
-          order.quote.buy = order.quote.buy.toFixed(2);
           order.createdAt = props.formatDate(new Date(order.createdAt));
           order.btn = (
             <button

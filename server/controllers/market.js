@@ -68,31 +68,6 @@ exports.getQuote = (req, res, next) => {
 exports.createOrder = (req, res, next) => {
   const order = req.body.order;
 
-  User.findByPk(req.userId)
-    .then((user) => {
-      return user.getWallet();
-    })
-    .then((wallet) => {
-      if (order.type === 'buy') {
-        wallet.value = wallet.value - +(order.value * 4.17).toFixed(2);
-      } else {
-        wallet.value = wallet.value + +(order.value * 4.17).toFixed(2);
-      }
-
-      return wallet.save();
-    })
-    .then((result) => {
-      // console.log(result);
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
-
-  console.log(order.quoteId);
-
   Quote.findByPk(order.quoteId)
     .then((quote) => {
       return quote.createOrder({
@@ -124,6 +99,7 @@ exports.getOrders = (req, res, next) => {
   const desc = req.query.desc;
 
   Order.findAndCountAll({
+    where: { userId: req.userId },
     include: [
       {
         model: Quote,
@@ -211,6 +187,7 @@ exports.getOpenPositions = (req, res, next) => {
   const desc = req.query.desc;
 
   OpenPosition.findAndCountAll({
+    where: { userId: req.userId },
     include: [
       {
         model: Quote,
@@ -235,7 +212,7 @@ exports.getOpenPositions = (req, res, next) => {
         throw error;
       }
       res.status(200).json({
-        message: 'Orders fetched.',
+        message: 'Open positions fetched.',
         positions: positions.rows,
         totalRow: positions.count,
       });
@@ -248,17 +225,70 @@ exports.getOpenPositions = (req, res, next) => {
     });
 };
 
-exports.getClosedPositions = (req, res, next) => {
-  ClosedPosition.findAll({ include: [{ model: Quote, include: [Company] }] })
-    .then((positions) => {
-      if (!positions) {
-        const error = new Error('Open positions could not be found.');
+exports.getOpenPosition = (req, res, next) => {
+  OpenPosition.findByPk(req.params.id, {
+    include: [
+      {
+        model: Quote,
+        include: [Company],
+      },
+    ],
+  })
+    .then((position) => {
+      if (!position) {
+        const error = new Error('Open position could not be found.');
         error.statusCode = 404;
         throw error;
       }
       res
         .status(200)
-        .json({ message: 'Orders fetched.', positions: positions });
+        .json({ message: 'Open position fetched.', position: position });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.getClosedPositions = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+
+  ClosedPosition.findAndCountAll({
+    where: { userId: req.userId },
+    include: [
+      {
+        model: Quote,
+        include: {
+          model: Company,
+          where: {
+            symbol: {
+              [Op.like]: search + '%',
+            },
+          },
+        },
+      },
+    ],
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
+    .then((positions) => {
+      if (!positions) {
+        const error = new Error('Closed positions could not be found.');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        message: 'Closed positions fetched.',
+        positions: positions.rows,
+        totalRow: positions.count,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {

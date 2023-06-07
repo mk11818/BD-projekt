@@ -1,6 +1,8 @@
 const paypal = require('@paypal/checkout-server-sdk');
 
 const User = require('../models/user');
+const OpenPosition = require('../models/open-position');
+const Quote = require('../models/quote');
 
 const Environment = paypal.core.SandboxEnvironment;
 const paypalClient = new paypal.core.PayPalHttpClient(
@@ -13,14 +15,32 @@ const paypalClient = new paypal.core.PayPalHttpClient(
 const storeItems = new Map([[1, { name: 'eMakler - wpłata środków' }]]);
 
 exports.getWallet = (req, res, next) => {
+  let accountValue = 0;
   User.findByPk(req.userId)
     .then((user) => {
+      user
+        .getOpen_positions({
+          include: { model: Quote },
+        })
+        .then((positions) => {
+          positions.forEach((position) => {
+            accountValue =
+              accountValue + position.volume * position.quote.sell * 4.17;
+          });
+        })
+        .catch((err) => {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        });
       return user.getWallet();
     })
     .then((wallet) => {
       res.status(200).json({
         message: 'Fetched wallet successfully.',
         value: wallet.value,
+        accountValue: accountValue + wallet.value,
       });
     })
     .catch((err) => {

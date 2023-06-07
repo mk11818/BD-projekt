@@ -10,6 +10,7 @@ const Wallet = (props) => {
   const [isPayment, setIsPayment] = useState(false);
   const [amount, setAmount] = useState('');
   const [value, setValue] = useState(0);
+  const [accountValue, setAccountValue] = useState(0);
 
   useEffect(() => {
     fetch('http://localhost:5000/wallet', {
@@ -25,6 +26,7 @@ const Wallet = (props) => {
       })
       .then((resData) => {
         setValue(resData.value);
+        setAccountValue(resData.accountValue);
         console.log(resData);
       })
       .catch((err) => {
@@ -82,7 +84,8 @@ const Wallet = (props) => {
   return (
     <Card className={classes.home}>
       <h1>Portfel</h1>
-      <h4>{value.toFixed(2)} PLN</h4>
+      <h4>Dostępne środki: {value.toFixed(2)} PLN</h4>
+      <h4>Wartość konta: {accountValue.toFixed(2)} PLN</h4>
 
       <form onSubmit={submitHandler}>
         <div className={classes[`form-label`]}>

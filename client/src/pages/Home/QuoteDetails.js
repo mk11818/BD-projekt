@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
-import MarketForm from '../../components/Form/MarketForm';
+import MarketBuyFrom from '../../components/Form/MarketBuyForm';
 
 const QuoteDetails = (props) => {
   const [quote, setQuote] = useState();
@@ -161,7 +161,7 @@ const QuoteDetails = (props) => {
         <>
           <hr />
           {!isOrder && (
-            <MarketForm
+            <MarketBuyFrom
               token={props.token}
               type='buy'
               title='Zakup natychmiastowy'
@@ -173,7 +173,7 @@ const QuoteDetails = (props) => {
             />
           )}
           {isOrder && (
-            <MarketForm
+            <MarketBuyFrom
               token={props.token}
               type='buy'
               title='Zlecenie oczekujące'

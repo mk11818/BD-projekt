@@ -186,7 +186,7 @@ sequelize
     });
 
     cron.schedule('0,10,20,30,40,50 * * * * *', () => {
-      Order.findAll({ include: Quote })
+      Order.findAll({ include: [Quote, User] })
         .then((orders) => {
           if (!orders) {
             const error = new Error('Orders could not be found.');
@@ -202,28 +202,82 @@ sequelize
                 open_price: order.price,
                 quoteId: order.quote.id,
                 userId: user.id,
-              }).then((result) => {
-                order.destroy();
-              });
+              })
+                .then((result) => {
+                  return User.findByPk(order.user.id);
+                })
+                .then((user) => {
+                  return user.getWallet();
+                })
+                .then((wallet) => {
+                  wallet.value =
+                    wallet.value - +(order.value * 4.17).toFixed(2);
+
+                  return wallet.save();
+                })
+                .then((result) => {
+                  order.destroy();
+                });
             }
-            if (order.type === 'sell' && order.rate === order.quote.sell) {
-              ClosedPosition.create({
-                type: order.type,
-                value: order.value,
-                profit: 0,
-                change: 0,
-                quoteId: order.quote.id,
-                userId: user.id,
-              });
-              OpenPosition.findOne({ where: { quoteId: order.quote.id } })
-                .then((order) => {
-                  console.log(order);
-                  if (!order) {
-                    const error = new Error('Order could not be found.');
+
+            if (order.type === 'sell' && order.price === order.quote.sell) {
+              OpenPosition.findOne({
+                where: { quoteId: order.quote.id },
+              })
+                .then((position) => {
+                  if (!position) {
+                    const error = new Error('Position could not be found.');
                     error.statusCode = 404;
                     throw error;
                   }
-                  order.destroy();
+
+                  ClosedPosition.create({
+                    type: order.type,
+                    volume: order.volume,
+                    value: order.value,
+                    open_price: position.open_price,
+                    close_price: order.quote.sell,
+                    profit: (
+                      position.volume * order.quote.sell * 4.17 -
+                      position.value * 4.17
+                    ).toFixed(2),
+                    percent_profit: (
+                      ((position.volume * order.quote.sell * 4.17 -
+                        position.value * 4.17) /
+                        (position.value * 4.17)) *
+                      100
+                    ).toFixed(2),
+                    createdAt: position.createdAt,
+                    closedAt: new Date(),
+                    quoteId: order.quote.id,
+                    userId: order.user.id,
+                  });
+
+                  const updatedVolume = position.volume - order.volume;
+                  const updatedValue = (
+                    (position.value / position.volume) *
+                    updatedVolume
+                  ).toFixed(2);
+                  console.log(position, updatedVolume);
+                  if (updatedVolume) {
+                    position.volume = updatedVolume;
+                    position.value = updatedValue;
+                    position.save();
+                  } else {
+                    position.destroy();
+                  }
+                })
+                .then((result) => {
+                  return User.findByPk(order.user.id);
+                })
+                .then((user) => {
+                  return user.getWallet();
+                })
+                .then((wallet) => {
+                  wallet.value =
+                    wallet.value + +(order.value * 4.17).toFixed(2);
+
+                  return wallet.save();
                 })
                 .then((result) => {
                   order.destroy();

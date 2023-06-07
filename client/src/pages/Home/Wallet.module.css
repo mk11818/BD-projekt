@@ -5,6 +5,10 @@
     text-align: center;
 }
 
+.home>h4 {
+    margin: 15px 0;
+}
+
 .payment button {
     margin: 0.5rem;
     width: 15rem;

@@ -1,48 +1,83 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MantineReactTable } from 'mantine-react-table';
+import { Link } from 'react-router-dom';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Dashboard.module.css';
+import TablePagination from '../../components/Table/TablePagination';
 
 const ClosedPositions = (props) => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalRow, setTotalRow] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
 
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'type',
-        header: 'Typ',
+        Header: 'Typ',
+        accessor: 'type',
       },
       {
-        accessorKey: 'quote.company.symbol',
-        header: 'Instrument',
+        Header: 'Instrument',
+        accessor: 'quote.company.symbol',
+        disableSortBy: true,
       },
       {
-        accessorKey: 'valuePLN',
-        header: 'Wartość',
+        Header: 'Wolumen',
+        accessor: 'volume',
       },
       {
-        accessorKey: 'profit',
-        header: 'Zysk / strata',
+        Header: 'Wartość',
+        accessor: 'value',
       },
       {
-        accessorKey: 'change',
-        header: 'Zmiana',
+        Header: 'Cena otwarcia',
+        accessor: 'open_price',
       },
       {
-        accessorKey: 'createdAt',
-        header: 'Data sprzedaży',
+        Header: 'Cena sprzedaży',
+        accessor: 'close_price',
+        disableSortBy: true,
+      },
+      {
+        Header: 'Zysk / strata',
+        accessor: 'profit',
+        disableSortBy: true,
+      },
+      {
+        Header: 'Data zakupu',
+        accessor: 'createdAt',
+      },
+      {
+        Header: 'Data sprzedaży',
+        accessor: 'closedAt',
       },
     ],
     []
   );
 
-  const fetchingOrders = () => {
-    fetch('http://localhost:5000/closed-positions', {
-      headers: {
-        Authorization: 'Bearer ' + props.token,
-      },
-    })
+  const fetchingOrders = (pageIndex, pageSize, search, sortBy) => {
+    setLoading(true);
+    if (!sortBy) {
+      sortBy = { id: '', desc: '' };
+    }
+    fetch(
+      'http://localhost:5000/closed-positions/?page=' +
+        pageIndex +
+        '&limit=' +
+        pageSize +
+        '&search=' +
+        search +
+        '&sortBy=' +
+        sortBy.id +
+        '&desc=' +
+        sortBy.desc,
+      {
+        headers: {
+          Authorization: 'Bearer ' + props.token,
+        },
+      }
+    )
       .then((res) => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch open positions');
@@ -53,41 +88,42 @@ const ClosedPositions = (props) => {
         console.log(resData);
         resData.positions.map((position) => {
           position.type = 'Sprzedaj';
-          position.valuePLN = `${position.value} (${(
+          position.value = `${position.value.toFixed(2)} (${(
             position.value * 4.17
           ).toFixed(2)} zł)`;
+          position.open_price = position.open_price.toFixed(2);
+          position.close_price = position.close_price.toFixed(2);
+          position.profit = (
+            <span
+              className={classes[`${position.profit >= 0 ? 'green' : 'red'}`]}
+            >
+              {position.profit} zł ({position.percent_profit}%)
+            </span>
+          );
+          position.createdAt = props.formatDate(new Date(position.createdAt));
+          position.closedAt = props.formatDate(new Date(position.closedAt));
         });
+        console.log(resData.positions);
         setOrders(resData.positions);
+        setTotalRow(resData.totalRow);
+        setPageCount(Math.ceil(resData.totalRow / pageSize));
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  useEffect(() => {
-    fetchingOrders();
-    const interval = setInterval(() => {
-      fetchingOrders();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <Card className={classes.home}>
-      <MantineReactTable
-        className={['market-table']}
+      <TablePagination
         columns={columns}
         data={orders}
-        enableColumnActions={false}
-        enableColumnFilters={false}
-        enablePagination={true}
-        enableSorting={true}
-        enableBottomToolbar={true}
-        enableTopToolbar={false}
-        mantineTableProps={{
-          highlightOnHover: false,
-          withColumnBorders: true,
-        }}
+        title='Zamknięte pozycje'
+        fetchData={fetchingOrders}
+        loading={loading}
+        pageCount={pageCount}
+        totalRow={totalRow}
       />
     </Card>
   );

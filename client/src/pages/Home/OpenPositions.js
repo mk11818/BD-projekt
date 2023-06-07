@@ -89,14 +89,15 @@ const OpenPositions = (props) => {
         console.log(resData);
         resData.positions.map((position) => {
           position.type = 'Kup';
-          position.profit =
+          position.profit = (
             position.volume * position.quote.sell * 4.17 -
-            position.value * 4.17;
+            position.value * 4.17
+          ).toFixed(2);
           position.profit = (
             <span
               className={classes[`${position.profit >= 0 ? 'green' : 'red'}`]}
             >
-              {position.profit.toFixed(2)} zł (
+              {position.profit} zł (
               {((position.profit / (position.value * 4.17)) * 100).toFixed(2)}
               %)
             </span>
@@ -108,7 +109,7 @@ const OpenPositions = (props) => {
           position.quote.sell = position.quote.sell.toFixed(2);
           position.createdAt = props.formatDate(new Date(position.createdAt));
           position.btn = (
-            <Link to={'/dashboard/' + position.quote.id}>
+            <Link to={'/dashboard/open-positions/' + position.id}>
               <button className={classes['btn-blue']}>Sprzedaj</button>
             </Link>
           );

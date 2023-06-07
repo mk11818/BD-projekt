@@ -16,6 +16,7 @@ import OpenPositions from './pages/Home/OpenPositions';
 import Orders from './pages/Home/Orders';
 import ClosedPositions from './pages/Home/ClosedPositions';
 import QuoteDetails from './pages/Home/QuoteDetails';
+import OpenPositionDetails from './pages/Home/OpenPositionDetails';
 
 function padTo2Digits(num) {
   return num.toString().padStart(2, '0');
@@ -134,16 +135,14 @@ function App() {
       });
   };
 
-  const registerHandler = (user, email, pwd) => {
+  const registerHandler = (userData) => {
     fetch('http://localhost:5000/auth/register', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: user,
-        email: email,
-        password: pwd,
+        userData: userData,
       }),
     })
       .then((res) => {
@@ -219,9 +218,18 @@ function App() {
                   element: <Wallet token={token} />,
                 },
                 {
-                  path: 'open-positions',
+                  path: '/dashboard/open-positions',
                   element: (
                     <OpenPositions token={token} formatDate={formatDate} />
+                  ),
+                },
+                {
+                  path: '/dashboard/open-positions/:positionId',
+                  element: (
+                    <OpenPositionDetails
+                      token={token}
+                      formatDate={formatDate}
+                    />
                   ),
                 },
                 {
@@ -230,7 +238,9 @@ function App() {
                 },
                 {
                   path: 'closed-positions',
-                  element: <ClosedPositions token={token} />,
+                  element: (
+                    <ClosedPositions token={token} formatDate={formatDate} />
+                  ),
                 },
               ],
             },
