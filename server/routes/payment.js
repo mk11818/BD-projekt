@@ -9,4 +9,6 @@ router.get('/wallet', isAuth, paymentController.getWallet);
 
 router.post('/fill-wallet', isAuth, paymentController.depositFunds);
 
+router.get('/deposit-history', isAuth, paymentController.getDepositHistory);
+
 module.exports = router;

@@ -17,6 +17,8 @@ import Orders from './pages/Home/Orders';
 import ClosedPositions from './pages/Home/ClosedPositions';
 import QuoteDetails from './pages/Home/QuoteDetails';
 import OpenPositionDetails from './pages/Home/OpenPositionDetails';
+import OrdersHistory from './pages/Home/OrdersHistory';
+import DepositHistory from './pages/Home/DepositHistory';
 
 function padTo2Digits(num) {
   return num.toString().padStart(2, '0');
@@ -218,6 +220,12 @@ function App() {
                   element: <Wallet token={token} />,
                 },
                 {
+                  path: '/dashboard/wallet/deposit-history',
+                  element: (
+                    <DepositHistory token={token} formatDate={formatDate} />
+                  ),
+                },
+                {
                   path: '/dashboard/open-positions',
                   element: (
                     <OpenPositions token={token} formatDate={formatDate} />
@@ -235,6 +243,12 @@ function App() {
                 {
                   path: 'orders',
                   element: <Orders token={token} formatDate={formatDate} />,
+                },
+                {
+                  path: 'orders-history',
+                  element: (
+                    <OrdersHistory token={token} formatDate={formatDate} />
+                  ),
                 },
                 {
                   path: 'closed-positions',

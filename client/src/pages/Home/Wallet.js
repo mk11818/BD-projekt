@@ -5,6 +5,7 @@ import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
+import { Link } from 'react-router-dom';
 
 const Wallet = (props) => {
   const [isPayment, setIsPayment] = useState(false);
@@ -107,9 +108,11 @@ const Wallet = (props) => {
           <button type='submit'>
             <FaArrowUp /> Wpłać środki
           </button>
-          <button disabled>
-            <FaArrowDown /> Wypłać środki
-          </button>
+          <Link to='/dashboard/wallet/deposit-history'>
+            <button className={classes['btn-blue']}>
+              <FaArrowDown /> Historia wpłat
+            </button>
+          </Link>
         </div>
       </form>
 

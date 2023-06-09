@@ -57,7 +57,7 @@ const OpenPositions = (props) => {
     []
   );
 
-  const fetchingOrders = (pageIndex, pageSize, search, sortBy) => {
+  const fetchingPositions = (pageIndex, pageSize, search, sortBy) => {
     setLoading(true);
     if (!sortBy) {
       sortBy = { id: '', desc: '' };
@@ -131,7 +131,7 @@ const OpenPositions = (props) => {
         columns={columns}
         data={orders}
         title='Otwarte pozycje'
-        fetchData={fetchingOrders}
+        fetchData={fetchingPositions}
         loading={loading}
         pageCount={pageCount}
         totalRow={totalRow}

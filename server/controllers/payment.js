@@ -1,3 +1,5 @@
+const { Op } = require('sequelize');
+
 const paypal = require('@paypal/checkout-server-sdk');
 
 const User = require('../models/user');
@@ -109,7 +111,7 @@ exports.depositFunds = async (req, res, next) => {
   user
     .createDeposit_history({
       payment_no: order.result.id,
-      amount: order.result.purchase_units[0].amount.value,
+      value: order.result.purchase_units[0].amount.value,
       currency: order.result.purchase_units[0].amount.currency_code,
       date: order.result.create_time,
     })
@@ -134,6 +136,41 @@ exports.depositFunds = async (req, res, next) => {
         message: 'Wallet successfully filled.',
         value: result.value,
         id: order.result.id,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.getDepositHistory = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+
+  User.findByPk(req.userId)
+    .then((user) => {
+      return user.getDeposit_histories({
+        where: {
+          payment_no: {
+            [Op.like]: search + '%',
+          },
+        },
+        offset: currentPage * perPage,
+        limit: perPage,
+        order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+      });
+    })
+    .then((depositHistory) => {
+      res.status(200).json({
+        message: 'Fetched deposit history successfully.',
+        depositHistory: depositHistory,
+        totalRow: depositHistory.length,
       });
     })
     .catch((err) => {

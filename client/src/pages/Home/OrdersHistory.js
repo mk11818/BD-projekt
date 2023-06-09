@@ -1,20 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FaArrowRight, } from 'react-icons/fa';
 
 import TablePagination from '../../components/Table/TablePagination';
 import Backdrop from '../../components/Backdrop/Backdrop';
 import Modal from '../../components/Modal/Modal';
 import Card from '../../components/UI/Card/Card';
 import classes from './Dashboard.module.css';
-import { Link } from 'react-router-dom';
 
-const Orders = (props) => {
+const OrdersHistory = (props) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRow, setTotalRow] = useState(0);
   const [pageCount, setPageCount] = useState(0);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [cancelOrder, setCancelOrder] = useState({});
 
   const columns = useMemo(
     () => [
@@ -53,9 +49,12 @@ const Orders = (props) => {
         accessor: 'createdAt',
       },
       {
-        Header: '',
-        accessor: 'btn',
-        disableSortBy: true,
+        Header: 'Zakończono',
+        accessor: 'closedAt',
+      },
+      {
+        Header: 'Rezultat',
+        accessor: 'result',
       },
     ],
     []
@@ -67,7 +66,7 @@ const Orders = (props) => {
       sortBy = { id: '', desc: '' };
     }
     fetch(
-      'http://localhost:5000/orders/?page=' +
+      'http://localhost:5000/orders-history/?page=' +
         pageIndex +
         '&limit=' +
         pageSize +
@@ -104,17 +103,12 @@ const Orders = (props) => {
           ).toFixed(2)} zł)`;
           order.price = order.price.toFixed(2);
           order.createdAt = props.formatDate(new Date(order.createdAt));
-          order.btn = (
-            <button
-              onClick={() => {
-                setCancelOrder(fetchedOrder);
-                setIsCancelling(true);
-              }}
-              className={classes['btn-red']}
-            >
-              Anuluj
-            </button>
-          );
+          order.closedAt = props.formatDate(new Date(order.closedAt));
+          if (order.result === 'realised') {
+            order.result = 'Zrealizowane';
+          } else {
+            order.result = 'Anulowane';
+          }
         });
         setOrders(resData.orders);
         setTotalRow(resData.totalRow);
@@ -126,67 +120,19 @@ const Orders = (props) => {
       });
   };
 
-  const deleteOrderHandler = (order) => {
-    fetch('http://localhost:5000/delete-order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + props.token,
-      },
-      body: JSON.stringify({
-        order: order,
-      }),
-    })
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          console.log('Error!');
-          throw new Error('Could not delete an order!');
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData);
-        setCancelOrder({});
-        setIsCancelling(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   return (
-    <>
-      {isCancelling && (
-        <>
-          <Backdrop />
-          <Modal
-            title={`Zlecenie nr ${cancelOrder.id}`}
-            acceptEnabled={true}
-            onCancelModal={() => setIsCancelling(false)}
-            onAcceptModal={() => deleteOrderHandler(cancelOrder)}
-          >
-            <p>Czy napewno chcesz anulować podane zlecenie?</p>
-          </Modal>
-        </>
-      )}
-      <Card className={classes.home}>
-        <div className={classes['btn-link']}>
-          <Link to='/dashboard/orders-history'>
-            <button className={classes['btn-blue']}>Historia zleceń <FaArrowRight /></button>
-          </Link>
-        </div>
-        <TablePagination
-          columns={columns}
-          data={orders}
-          title='Zlecenia'
-          fetchData={fetchingOrders}
-          loading={loading}
-          pageCount={pageCount}
-          totalRow={totalRow}
-        />
-      </Card>
-    </>
+    <Card className={classes.home}>
+      <TablePagination
+        columns={columns}
+        data={orders}
+        title='Historia zleceń'
+        fetchData={fetchingOrders}
+        loading={loading}
+        pageCount={pageCount}
+        totalRow={totalRow}
+      />
+    </Card>
   );
 };
 
-export default Orders;
+export default OrdersHistory;

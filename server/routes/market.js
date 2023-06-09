@@ -9,6 +9,7 @@ router.get('/quotes', isAuth, marketController.getQuotes);
 router.get('/quote/:id', isAuth, marketController.getQuote);
 
 router.get('/orders', isAuth, marketController.getOrders);
+router.get('/orders-history', isAuth, marketController.getOrdersHistory);
 router.post('/create-order', isAuth, marketController.createOrder);
 router.post('/delete-order', isAuth, marketController.deleteOrder);
 

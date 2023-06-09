@@ -1,4 +1,4 @@
-const { Op, or } = require('sequelize');
+const { Op } = require('sequelize');
 
 const Company = require('../models/company');
 const Order = require('../models/order');
@@ -6,6 +6,7 @@ const Quote = require('../models/quote');
 const User = require('../models/user');
 const OpenPosition = require('../models/open-position');
 const ClosedPosition = require('../models/closed-position');
+const OrderHistory = require('../models/order-history');
 
 exports.getQuotes = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -137,6 +138,52 @@ exports.getOrders = (req, res, next) => {
     });
 };
 
+exports.getOrdersHistory = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+
+  OrderHistory.findAndCountAll({
+    where: { userId: req.userId },
+    include: [
+      {
+        model: Quote,
+        include: {
+          model: Company,
+          where: {
+            symbol: {
+              [Op.like]: search + '%',
+            },
+          },
+        },
+      },
+    ],
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
+    .then((orders) => {
+      if (!orders) {
+        const error = new Error('Orders could not be found.');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        message: 'Orders fetched.',
+        orders: orders.rows,
+        totalRow: orders.count,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
 exports.deleteOrder = (req, res, next) => {
   const order = req.body.order;
   console.log(order);
@@ -159,13 +206,27 @@ exports.deleteOrder = (req, res, next) => {
       next(err);
     });
 
-  Order.findOne({ where: { id: order.id } })
+  Order.findOne({ where: { id: order.id }, include: { model: Quote } })
     .then((order) => {
       if (!order) {
         const error = new Error('Order could not be found.');
         error.statusCode = 404;
         throw error;
       }
+      OrderHistory.create({
+        order_no: order.id,
+        type: order.type,
+        volume: order.volume,
+        value: order.value,
+        price: order.price,
+        quoteBuy: order.quote.buy,
+        quoteSell: order.quote.sell,
+        createdAt: order.createdAt,
+        closedAt: new Date(),
+        result: 'cancelled',
+        userId: req.userId,
+        quoteId: order.quote.id,
+      });
       return order.destroy();
     })
     .then((result) => {

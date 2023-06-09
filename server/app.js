@@ -19,6 +19,7 @@ const Quote = require('./models/quote');
 const Order = require('./models/order');
 const OpenPosition = require('./models/open-position');
 const ClosedPosition = require('./models/closed-position');
+const OrderHistory = require('./models/order-history');
 
 const api_key = finnhub.ApiClient.instance.authentications['api_key'];
 api_key.apiKey = 'chdimu1r01qk9rb2k220chdimu1r01qk9rb2k22g'; // Replace this
@@ -99,6 +100,11 @@ User.hasMany(Order);
 Order.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 Quote.hasMany(Order);
 Order.belongsTo(Quote, { constraints: true, onDelete: 'CASCADE' });
+
+User.hasMany(OrderHistory);
+OrderHistory.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+Quote.hasMany(OrderHistory);
+OrderHistory.belongsTo(Quote, { constraints: true, onDelete: 'CASCADE' });
 
 User.hasMany(OpenPosition);
 OpenPosition.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
@@ -216,6 +222,20 @@ sequelize
                   return wallet.save();
                 })
                 .then((result) => {
+                  OrderHistory.create({
+                    order_no: order.id,
+                    type: order.type,
+                    volume: order.volume,
+                    value: order.value,
+                    price: order.price,
+                    quoteBuy: order.quote.buy,
+                    quoteSell: order.quote.sell,
+                    createdAt: order.createdAt,
+                    closedAt: new Date(),
+                    result: 'realised',
+                    userId: order.user.id,
+                    quoteId: order.quote.id,
+                  });
                   order.destroy();
                 });
             }
@@ -280,6 +300,20 @@ sequelize
                   return wallet.save();
                 })
                 .then((result) => {
+                  OrderHistory.create({
+                    order_no: order.id,
+                    type: order.type,
+                    volume: order.volume,
+                    value: order.value,
+                    price: order.price,
+                    quoteBuy: order.quote.buy,
+                    quoteSell: order.quote.sell,
+                    createdAt: order.createdAt,
+                    closedAt: new Date(),
+                    result: 'realised',
+                    userId: order.user.id,
+                    quoteId: order.quote.id,
+                  });
                   order.destroy();
                 });
             }
