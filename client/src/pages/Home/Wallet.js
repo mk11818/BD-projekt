@@ -108,7 +108,7 @@ const Wallet = (props) => {
           <button type='submit'>
             <FaArrowUp /> Wpłać środki
           </button>
-          <Link to='/dashboard/wallet/deposit-history'>
+          <Link to='/dashboard/deposit-history'>
             <button className={classes['btn-blue']}>
               <FaArrowDown /> Historia wpłat
             </button>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
@@ -135,6 +135,10 @@ const QuoteDetails = (props) => {
           {quote.sell}
         </p>
       </div>
+
+      <Link to={'/dashboard/quote-history/' + quoteId}>
+        <button className={classes['btn-blue']}>Historia notowań</button>
+      </Link>
 
       <button
         onClick={() => {

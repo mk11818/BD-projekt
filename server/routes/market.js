@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.get('/quotes', isAuth, marketController.getQuotes);
 router.get('/quote/:id', isAuth, marketController.getQuote);
+router.get('/quote-history/:id', isAuth, marketController.getQuoteHistory);
 
 router.get('/orders', isAuth, marketController.getOrders);
 router.get('/orders-history', isAuth, marketController.getOrdersHistory);

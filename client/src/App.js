@@ -19,6 +19,7 @@ import QuoteDetails from './pages/Home/QuoteDetails';
 import OpenPositionDetails from './pages/Home/OpenPositionDetails';
 import OrdersHistory from './pages/Home/OrdersHistory';
 import DepositHistory from './pages/Home/DepositHistory';
+import QuoteHistory from './pages/Home/QuoteHistory';
 
 function padTo2Digits(num) {
   return num.toString().padStart(2, '0');
@@ -216,11 +217,17 @@ function App() {
                   element: <QuoteDetails token={token} />,
                 },
                 {
+                  path: '/dashboard/quote-history/:quoteId',
+                  element: (
+                    <QuoteHistory token={token} formatDate={formatDate} />
+                  ),
+                },
+                {
                   path: 'wallet',
                   element: <Wallet token={token} />,
                 },
                 {
-                  path: '/dashboard/wallet/deposit-history',
+                  path: '/dashboard/deposit-history',
                   element: (
                     <DepositHistory token={token} formatDate={formatDate} />
                   ),

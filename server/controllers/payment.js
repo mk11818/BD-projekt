@@ -5,6 +5,7 @@ const paypal = require('@paypal/checkout-server-sdk');
 const User = require('../models/user');
 const OpenPosition = require('../models/open-position');
 const Quote = require('../models/quote');
+const DepositHistory = require('../models/deposit-history');
 
 const Environment = paypal.core.SandboxEnvironment;
 const paypalClient = new paypal.core.PayPalHttpClient(
@@ -153,24 +154,22 @@ exports.getDepositHistory = (req, res, next) => {
   const sortBy = req.query.sortBy;
   const desc = req.query.desc;
 
-  User.findByPk(req.userId)
-    .then((user) => {
-      return user.getDeposit_histories({
-        where: {
-          payment_no: {
-            [Op.like]: search + '%',
-          },
-        },
-        offset: currentPage * perPage,
-        limit: perPage,
-        order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
-      });
-    })
+  DepositHistory.findAndCountAll({
+    where: {
+      userId: req.userId,
+      payment_no: {
+        [Op.like]: search + '%',
+      },
+    },
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
     .then((depositHistory) => {
       res.status(200).json({
         message: 'Fetched deposit history successfully.',
-        depositHistory: depositHistory,
-        totalRow: depositHistory.length,
+        depositHistory: depositHistory.rows,
+        totalRow: depositHistory.count,
       });
     })
     .catch((err) => {

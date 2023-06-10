@@ -16,6 +16,7 @@ const Wallet = require('./models/wallet');
 const DepositHistory = require('./models/deposit-history');
 const Company = require('./models/company');
 const Quote = require('./models/quote');
+const QuoteHistory = require('./models/quote-history');
 const Order = require('./models/order');
 const OpenPosition = require('./models/open-position');
 const ClosedPosition = require('./models/closed-position');
@@ -96,6 +97,9 @@ DepositHistory.belongsTo(User);
 Company.hasMany(Quote);
 Quote.belongsTo(Company);
 
+Quote.hasMany(QuoteHistory);
+QuoteHistory.belongsTo(Quote);
+
 User.hasMany(Order);
 Order.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 Quote.hasMany(Order);
@@ -147,20 +151,45 @@ sequelize
             return user.createWallet();
           })
           .then((wallet) => {
+            const date = new Date();
+            const toDate = Math.floor(date.getTime() / 1000);
+            date.setDate(date.getDate() - 14);
+            const fromDate = Math.floor(date.getTime() / 1000);
+
             symbols.forEach((symbol) => {
               Company.create({ symbol: symbol }).then((company) => {
                 finnhubClient.quote(symbol, (error, data, response) => {
-                  company.createQuote({
-                    current: data.c.toFixed(2),
-                    buy: (data.c * 1.005).toFixed(2),
-                    sell: (data.c * 0.995).toFixed(2),
-                    change: data.d.toFixed(2),
-                    percent_change: data.dp.toFixed(2),
-                    high: data.h.toFixed(2),
-                    low: data.l.toFixed(2),
-                    open: data.o.toFixed(2),
-                    prev_close: data.pc.toFixed(2),
-                  });
+                  return company
+                    .createQuote({
+                      current: data.c.toFixed(2),
+                      buy: (data.c * 1.005).toFixed(2),
+                      sell: (data.c * 0.995).toFixed(2),
+                      change: data.d.toFixed(2),
+                      percent_change: data.dp.toFixed(2),
+                      high: data.h.toFixed(2),
+                      low: data.l.toFixed(2),
+                      open: data.o.toFixed(2),
+                      prev_close: data.pc.toFixed(2),
+                    })
+                    .then((quote) => {
+                      finnhubClient.stockCandles(
+                        symbol,
+                        '60',
+                        fromDate,
+                        toDate,
+                        (error, data, response) => {
+                          for (let i = 0; i < data.c.length; i++) {
+                            quote.createQuote_history({
+                              close: data.c[i],
+                              high: data.h[i],
+                              low: data.l[i],
+                              open: data.o[i],
+                              date: new Date(data.t[i] * 1000),
+                            });
+                          }
+                        }
+                      );
+                    });
                 });
               });
             });

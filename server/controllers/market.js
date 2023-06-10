@@ -7,6 +7,7 @@ const User = require('../models/user');
 const OpenPosition = require('../models/open-position');
 const ClosedPosition = require('../models/closed-position');
 const OrderHistory = require('../models/order-history');
+const QuoteHistory = require('../models/quote-history');
 
 exports.getQuotes = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -57,6 +58,52 @@ exports.getQuote = (req, res, next) => {
         throw error;
       }
       res.status(200).json({ message: 'Quote fetched.', quote: quote });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.getQuoteHistory = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = +req.query.limit || 5;
+  const search = req.query.search || '';
+  const sortBy = req.query.sortBy;
+  const desc = req.query.desc;
+
+  QuoteHistory.findAndCountAll({
+    where: { quoteId: req.params.id },
+    include: [
+      {
+        model: Quote,
+        include: {
+          model: Company,
+          where: {
+            symbol: {
+              [Op.like]: search + '%',
+            },
+          },
+        },
+      },
+    ],
+    offset: currentPage * perPage,
+    limit: perPage,
+    order: sortBy ? [[sortBy, desc === 'true' ? 'DESC' : 'ASC']] : [],
+  })
+    .then((quoteHistory) => {
+      if (!quoteHistory) {
+        const error = new Error('Quote history could not be found.');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        message: 'Quote history fetched.',
+        quoteHistory: quoteHistory.rows,
+        totalRow: quoteHistory.count,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {
