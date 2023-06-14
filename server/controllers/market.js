@@ -235,23 +235,23 @@ exports.deleteOrder = (req, res, next) => {
   const order = req.body.order;
   console.log(order);
 
-  User.findByPk(req.userId)
-    .then((user) => {
-      return user.getWallet();
-    })
-    .then((wallet) => {
-      wallet.value = wallet.value + +(order.value * 4.17).toFixed(2);
-      return wallet.save();
-    })
-    .then((result) => {
-      // console.log(result);
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
+  // User.findByPk(req.userId)
+  //   .then((user) => {
+  //     return user.getWallet();
+  //   })
+  //   .then((wallet) => {
+  //     wallet.value = wallet.value + +(order.value * 4.17).toFixed(2);
+  //     return wallet.save();
+  //   })
+  //   .then((result) => {
+  //     // console.log(result);
+  //   })
+  //   .catch((err) => {
+  //     if (!err.statusCode) {
+  //       err.statusCode = 500;
+  //     }
+  //     next(err);
+  //   });
 
   Order.findOne({ where: { id: order.id }, include: { model: Quote } })
     .then((order) => {
@@ -319,6 +319,7 @@ exports.getOpenPositions = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      console.log(positions);
       res.status(200).json({
         message: 'Open positions fetched.',
         positions: positions.rows,

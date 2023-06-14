@@ -26,7 +26,10 @@ const api_key = finnhub.ApiClient.instance.authentications['api_key'];
 api_key.apiKey = 'chdimu1r01qk9rb2k220chdimu1r01qk9rb2k22g'; // Replace this
 const finnhubClient = new finnhub.DefaultApi();
 
-const roles = ['admin', 'user'];
+const roles = [
+  { name: 'admin', permission: 'default' },
+  { name: 'user', permission: 'default' },
+];
 
 const symbols = [
   'TSLA',
@@ -131,7 +134,8 @@ sequelize
     if (!user) {
       roles.forEach((role) => {
         Role.create({
-          name: role,
+          name: role.name,
+          permission: role.permission,
         });
       });
 
@@ -220,7 +224,7 @@ sequelize
       });
     });
 
-    cron.schedule('0,10,20,30,40,50 * * * * *', () => {
+    cron.schedule('* * * * * *', () => {
       Order.findAll({ include: [Quote, User] })
         .then((orders) => {
           if (!orders) {
@@ -236,7 +240,7 @@ sequelize
                 value: order.value,
                 open_price: order.price,
                 quoteId: order.quote.id,
-                userId: user.id,
+                userId: order.user.id,
               })
                 .then((result) => {
                   return User.findByPk(order.user.id);
@@ -308,7 +312,7 @@ sequelize
                     updatedVolume
                   ).toFixed(2);
                   console.log(position, updatedVolume);
-                  if (updatedVolume) {
+                  if (updatedVolume > 0) {
                     position.volume = updatedVolume;
                     position.value = updatedValue;
                     position.save();

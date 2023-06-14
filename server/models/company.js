@@ -2,17 +2,23 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const Company = sequelize.define('company', {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
+const Company = sequelize.define(
+  'company',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      allowNull: false,
+      primaryKey: true,
+    },
+    symbol: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
   },
-  symbol: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-});
+  {
+    timestamps: false,
+  }
+);
 
 module.exports = Company;

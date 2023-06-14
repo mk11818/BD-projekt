@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { FaArrowRight } from 'react-icons/fa';
 
 import Card from '../../components/UI/Card/Card';
 import classes from './Wallet.module.css';
@@ -121,6 +122,11 @@ const QuoteDetails = (props) => {
           </span>{' '}
           {quote.prev_close}
         </p>
+        <Link to={'/dashboard/quote-history/' + quoteId}>
+          <button className={classes['btn-blue']}>
+            Historia notowań <FaArrowRight />
+          </button>
+        </Link>
         <hr />
         <p>
           <span className={classes['quote-info__title']}>
@@ -135,10 +141,6 @@ const QuoteDetails = (props) => {
           {quote.sell}
         </p>
       </div>
-
-      <Link to={'/dashboard/quote-history/' + quoteId}>
-        <button className={classes['btn-blue']}>Historia notowań</button>
-      </Link>
 
       <button
         onClick={() => {

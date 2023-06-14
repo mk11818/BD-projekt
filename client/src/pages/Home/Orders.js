@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FaArrowRight, } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
 import TablePagination from '../../components/Table/TablePagination';
 import Backdrop from '../../components/Backdrop/Backdrop';
